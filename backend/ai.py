@@ -303,11 +303,11 @@ async def generate_post(req: GenerateRequest, user: dict = Depends(get_current_u
 
 
 STYLE_PREFIX = {
-    "comic": ("Vintage newspaper comic strip art, retro Sunday funnies printed on newsprint. Clean bold even ink "
-              "outlines, simple clear cartoon drawing with well-proportioned faces and correct anatomy, flat limited "
-              "color fills. Classic offset-print look: visible Ben-Day halftone dots, CMYK color with slight "
-              "misregistration, faint newsprint paper texture, slightly faded retro palette. Simple and readable, NOT "
-              "painterly, NO cross-hatching, NO gritty realism, NO abstract shapes. A single clear scene. "
+    "comic": ("Modern digital comic book / pop-art illustration. Bold, clean, crisp black ink outlines of even weight; "
+              "vibrant saturated flat colors; prominent Ben-Day halftone dot shading and halftone gradients in skies and "
+              "shadows; smooth cel shading; sharp high-quality vector-like linework; well-proportioned faces and correct, "
+              "clean anatomy; dynamic polished composition. Professional pop-art comic look. NOT painterly, NOT faded, "
+              "NOT sketchy, no cross-hatching. A single clear scene. "
               "NO text, NO words, NO speech bubbles, NO captions, no logos, no watermarks. "),
     "illustration": ("Editorial illustration, warm flat vector style, clean shapes, soft harmonious palette, subtle "
                      "texture, culturally relevant, no text, no words, no logos, no watermarks. "),
