@@ -87,16 +87,29 @@ export default function Home() {
         <SectionHeading eyebrow="Lo que debes saber hoy" title="Historias destacadas"
           action={<Link to="/enterate"><Button variant="outline" data-testid="ver-mas-enterate">Ver todo Entérate <ArrowRight className="ml-1.5 h-4 w-4" /></Button></Link>} />
         {lead && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            <div className="lg:col-span-8"><ArticleCard item={lead} to={`/enterate/${lead.slug}`} large /></div>
-            <div className="lg:col-span-4 flex flex-col gap-6">
-              {rest.slice(0, 2).map((a) => <ArticleCard key={a.id} item={a} to={`/enterate/${a.slug}`} />)}
+          <Link to={`/enterate/${lead.slug}`} data-testid={`card-${lead.slug}`}
+            className="group grid md:grid-cols-2 overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md">
+            <div className="aspect-[16/10] md:aspect-auto overflow-hidden">
+              <img src={mediaUrl(lead.featured_image)} alt={lead.title} loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
             </div>
-          </div>
+            <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
+              <div className="flex items-center gap-2 flex-wrap mb-3">
+                {lead.category && <CategoryBadge>{lead.category}</CategoryBadge>}
+                {lead.content_type && <span className="inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary">{lead.content_type}</span>}
+                {lead.is_demo && <DemoBadge />}
+              </div>
+              <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight tracking-tight group-hover:text-primary transition-colors">{lead.title}</h3>
+              {lead.summary && <p className="mt-3 text-muted-foreground line-clamp-3">{lead.summary}</p>}
+              <div className="mt-5 flex items-center gap-3 text-xs text-muted-foreground">
+                <span>{lead.author}</span><span>·</span><span>Leer más →</span>
+              </div>
+            </div>
+          </Link>
         )}
-        {rest.length > 2 && (
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {rest.slice(2).map((a) => <ArticleCard key={a.id} item={a} to={`/enterate/${a.slug}`} />)}
+        {rest.length > 0 && (
+          <div className={`mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 ${rest.length >= 3 ? "lg:grid-cols-3" : ""}`}>
+            {rest.map((a) => <ArticleCard key={a.id} item={a} to={`/enterate/${a.slug}`} />)}
           </div>
         )}
       </section>
