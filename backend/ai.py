@@ -103,6 +103,48 @@ def _parse_json(text: str):
         return {"raw": text}
 
 
+GROUND_MODEL = os.environ.get("AI_SEARCH_MODEL", "gemini-2.5-flash")
+
+
+def _extract_citations(raw):
+    """Extrae enlaces reales (fuentes) de la respuesta de Gemini con googleSearch."""
+    out = []
+    try:
+        msg = raw.choices[0].message
+        anns = getattr(msg, "annotations", None) or []
+        for a in anns:
+            uc = a.get("url_citation") if isinstance(a, dict) else getattr(a, "url_citation", None)
+            if not uc:
+                continue
+            title = (uc.get("title") if isinstance(uc, dict) else getattr(uc, "title", "")) or ""
+            url = (uc.get("url") if isinstance(uc, dict) else getattr(uc, "url", "")) or ""
+            if url:
+                out.append({"name": title or url, "url": url, "organization": "", "type": "Web", "date": ""})
+    except Exception:
+        pass
+    seen, dedup = set(), []
+    for c in out:
+        if c["url"] not in seen:
+            seen.add(c["url"])
+            dedup.append(c)
+    return dedup
+
+
+async def _run_grounded(system: str, prompt: str):
+    """Ejecuta Gemini con Google Search (grounding). Devuelve (texto, citas)."""
+    key = os.environ.get("EMERGENT_LLM_KEY")
+    if not key:
+        raise HTTPException(status_code=500, detail="No hay clave de AI configurada")
+    chat = (LlmChat(api_key=key, session_id=new_id(), system_message=system)
+            .with_model("gemini", GROUND_MODEL)
+            .with_tools([{"googleSearch": {}}]))
+    try:
+        resp = await chat.send_message_with_tools(UserMessage(text=prompt))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Error de AI: {str(e)[:200]}")
+    return (resp.content or ""), _extract_citations(resp.raw)
+
+
 @ai_router.post("/assist")
 async def assist(req: AIRequest, user: dict = Depends(get_current_user)):
     action = req.action
@@ -196,18 +238,27 @@ async def hero_text(req: HeroTextRequest, user: dict = Depends(get_current_user)
 @ai_router.post("/research")
 async def research(req: ResearchRequest, user: dict = Depends(get_current_user)):
     ctx = KIND_CONTEXT.get(req.kind, "un contenido informativo para la comunidad de Oregon")
-    extra = f" Instrucciones del editor: {req.instructions}." if req.instructions else ""
-    prompt = (f"Actúa como asistente de investigación editorial. Sobre el tema \"{req.topic}\", "
-              f"propón 4 opciones DISTINTAS de {ctx}.{extra} "
-              f"Cada opción debe ser CONCRETA y útil: elige ángulos prácticos sobre los que se pueda escribir "
-              f"información específica y verificable (guías, pasos, requisitos, cómo encontrar o acceder a algo, qué "
-              f"existe y para quién). Evita ángulos vagos o que exijan inventar nombres o datos que no se pueden confirmar. "
-              f"Para cada opción incluye: title (título claro, específico y no sensacionalista), angle (el enfoque en "
-              f"pocas palabras) y summary (1-2 oraciones concretas). {NO_INVENT} "
-              f'Responde SOLO con JSON: {{"options":[{{"title":"","angle":"","summary":""}}]}}')
-    raw = await _run(EDITORIAL_SYSTEM_PROMPT, prompt)
-    data = _parse_json(raw)
-    return {"options": data.get("options", [])}
+    extra = f" Datos/instrucciones del editor: {req.instructions}." if req.instructions else ""
+    prompt = (f"Busca en la web información REAL y actual sobre: \"{req.topic}\". "
+              f"Contexto: estamos preparando {ctx} para la comunidad latina de Oregon.{extra}\n\n"
+              f"Devuelve entre 4 y 6 resultados REALES encontrados en la búsqueda (noticias, artículos, publicaciones, "
+              f"perfiles o páginas oficiales). Para cada resultado incluye:\n"
+              f"- title: el tema/persona/organización específica y concreta (por ejemplo el nombre real de la persona o programa).\n"
+              f"- summary: 2-3 frases con datos CONCRETOS de la fuente (qué, quién, dónde, cuándo).\n"
+              f"- source: el nombre o dominio de la fuente.\n"
+              f"Usa SOLO información real encontrada en la búsqueda. NUNCA inventes personas, datos ni fuentes. "
+              f"Si no encuentras resultados reales suficientes, devuelve menos. "
+              f'Responde SOLO con JSON: {{"options":[{{"title":"","summary":"","source":""}}]}}')
+    content, cites = await _run_grounded(EDITORIAL_SYSTEM_PROMPT, prompt)
+    data = _parse_json(content)
+    options = data.get("options", []) or []
+    # Adjunta el enlace real de la fuente a cada opción (heurística por orden) y una lista global.
+    for i, opt in enumerate(options):
+        if isinstance(opt, dict) and i < len(cites):
+            opt["source_url"] = cites[i]["url"]
+            if not opt.get("source"):
+                opt["source"] = cites[i]["name"]
+    return {"options": options, "sources": cites}
 
 
 @ai_router.post("/generate-post")
@@ -219,15 +270,35 @@ async def generate_post(req: GenerateRequest, user: dict = Depends(get_current_u
     ctx = KIND_CONTEXT.get(req.kind, "contenido informativo")
     guide = GEN_GUIDE.get(req.kind, "")
     extra = f" Datos/instrucciones del editor (úsalos como base, no inventes más allá de esto): {req.instructions}." if req.instructions else ""
-    prompt = (f"Crea un BORRADOR completo de {ctx} basado en esta opción elegida:\n"
-              f"Título: {sel.get('title','')}\nEnfoque: {sel.get('angle','')}\nResumen: {sel.get('summary','')}\n"
-              f"Tema general: {req.topic}.{extra}\n\n{guide}\n\n{NO_INVENT}\n\n"
+    src_line = f"\nFuente encontrada: {sel.get('source','')} {sel.get('source_url','')}" if (sel.get('source') or sel.get('source_url')) else ""
+    prompt = (f"Investiga en la web y crea un BORRADOR completo de {ctx} basado en este resultado elegido:\n"
+              f"Tema/título: {sel.get('title','')}\nResumen: {sel.get('summary','')}{src_line}\n"
+              f"Tema general: {req.topic}.{extra}\n\n"
+              f"Usa información REAL y verificable encontrada en la búsqueda web. Incluye datos concretos (nombres, "
+              f"lugares, fechas, cifras) SOLO si aparecen en fuentes reales. NO inventes nada.\n\n{guide}\n\n{NO_INVENT}\n\n"
               f"Rellena TODOS los campos posibles con información concreta y útil (sin relleno). "
               f"Responde SOLO con JSON con esta forma exacta:\n{schema}")
-    raw = await _run(EDITORIAL_SYSTEM_PROMPT, prompt)
-    fields = _parse_json(raw)
+    content, cites = await _run_grounded(EDITORIAL_SYSTEM_PROMPT, prompt)
+    fields = _parse_json(content)
+    if not isinstance(fields, dict):
+        fields = {}
+    # Normaliza campos: la AI a veces devuelve listas/objetos o markdown para campos de texto.
+    KEEP_LIST = {"tags", "sources", "gallery"}
+    for k, v in list(fields.items()):
+        if k in KEEP_LIST:
+            continue
+        if isinstance(v, list):
+            v = "\n".join(str(x) for x in v)
+        elif isinstance(v, dict):
+            v = "\n".join(f"{kk}: {vv}" for kk, vv in v.items())
+        if isinstance(v, str):
+            fields[k] = v.replace("**", "").replace("* ", "- ")
     fields["used_ai"] = True
     fields["status"] = "draft"
+    if cites:
+        fields["sources"] = cites[:6]
+        if "official_source" in schema and not fields.get("official_source"):
+            fields["official_source"] = cites[0]["url"]
     return {"fields": fields}
 
 

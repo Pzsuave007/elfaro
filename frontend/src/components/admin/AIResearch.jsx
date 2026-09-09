@@ -123,8 +123,19 @@ export function AIResearch({ kind, setValues }) {
               {options.map((opt, i) => (
                 <div key={i} className="rounded-lg border border-border p-4" data-testid={`research-option-${i}`}>
                   <h4 className="font-serif font-bold">{opt.title}</h4>
-                  {opt.angle && <p className="text-xs font-semibold uppercase tracking-wider text-terracotta mt-1">{opt.angle}</p>}
                   {opt.summary && <p className="text-sm text-muted-foreground mt-1.5">{opt.summary}</p>}
+                  {(opt.source || opt.source_url) && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Fuente:{" "}
+                      {opt.source_url ? (
+                        <a href={opt.source_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium" data-testid={`research-source-${i}`}>
+                          {opt.source || "ver fuente"}
+                        </a>
+                      ) : (
+                        <span className="font-medium">{opt.source}</span>
+                      )}
+                    </p>
+                  )}
                   <Button type="button" size="sm" className="mt-3" disabled={!!busy} onClick={() => applyOption(opt)} data-testid={`research-use-${i}`}>
                     {busy === "generate" ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-1.5 h-4 w-4" />}
                     Usar esta opción

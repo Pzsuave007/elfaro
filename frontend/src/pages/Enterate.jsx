@@ -17,7 +17,7 @@ export default function Enterate() {
   return (
     <ContentListPage
       kind="articles" route="/historias" title="Historias de la comunidad"
-      subtitle="Historias, guías y perspectivas de nuestra comunidad en Oregon. Contenido que no caduca."
+      subtitle="Historias, guías y perspectivas de nuestra comunidad en Oregon."
       categoriesKey="article_categories" cardType="article" groups={GROUPS}
     />
   );
