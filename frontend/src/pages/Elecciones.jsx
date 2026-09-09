@@ -16,7 +16,7 @@ export default function Elecciones() {
     <div>
       <section className="bg-primary text-primary-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14 sm:py-20">
-          <p className="eyebrow text-primary-foreground/70 mb-3">Elecciones</p>
+          <p className="text-xs font-sans font-semibold uppercase tracking-[0.15em] text-primary-foreground/75 mb-3">Elecciones</p>
           <h1 className="font-serif text-4xl sm:text-5xl font-bold tracking-tight">Conoce a los candidatos</h1>
           <p className="mt-4 text-lg text-primary-foreground/80 max-w-2xl">Conoce sus propuestas. Decide por ti mismo. Presentamos a todos los candidatos con el mismo formato, las mismas preguntas y fuentes identificadas.</p>
           <div className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2.5 text-sm">

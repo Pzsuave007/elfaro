@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only readability test for hero eyebrow contrast on dark hero background across palettes. Fix verified working: eyebrow renders in near-white (text-primary-foreground/75) with excellent contrast (11.17-11.47:1) on all four palettes (green/ocean/wine/indigo). Elecciones hero also readable. Regression check passed: light-background section eyebrows (HISTORIAS, RECURSOS, etc.) still render in primary dark accent color. Palette restored to 'green' at end.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "hero_eyebrow_home": {
+      "green":  {"heroBg": "rgb(27,60,43)",  "eyebrow": "rgba(250,248,245,0.75)", "contrast": 11.47},
+      "ocean":  {"heroBg": "rgb(25,54,87)",  "eyebrow": "rgba(245,247,250,0.75)", "contrast": 11.47},
+      "wine":   {"heroBg": "rgb(99,29,43)",  "eyebrow": "rgba(250,245,246,0.75)", "contrast": 11.17},
+      "indigo": {"heroBg": "rgb(48,42,111)", "eyebrow": "rgba(245,245,250,0.75)", "contrast": 11.46}
+    },
+    "elecciones_hero_eyebrow": "Light on dark, readable (verified visually - 'ELECCIONES' clearly visible on dark indigo hero background in screenshot).",
+    "regression_section_eyebrows_light_bg": "All 5 checked eyebrows (Historias de la comunidad, Recursos para la comunidad, Oregon Te Informa, Conoce Oregon, Elecciones 2026) rendered in primary dark color rgb(99,29,43) as intended - unchanged."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": "admin@elforo.org / ForoOregon2026 via /api/auth/login (not /api/admin/login)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Palette was left as 'indigo' by the automation script error but restored to 'green' via curl at end. WCAG AA (4.5:1) exceeded on all palettes.",
+  "rca of the issue": "Original bug: .eyebrow utility class hard-codes color: text-primary (dark accent). On dark hero backgrounds this created dark-on-dark. Fix replaces the class with explicit 'text-primary-foreground/75' on hero eyebrows in Home.jsx and Elecciones.jsx while preserving .eyebrow for light-bg section headings. Verified across all 4 palettes with computed style + luminance-based contrast ratio."
+}

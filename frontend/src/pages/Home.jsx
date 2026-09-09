@@ -48,7 +48,7 @@ export default function Home() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 sm:py-24 lg:py-28">
           <div className="max-w-3xl fade-up">
-            <p className="eyebrow text-primary-foreground/70 mb-4">{settings?.hero_eyebrow || "Información pública en español · Oregon"}</p>
+            <p className="text-xs font-sans font-semibold uppercase tracking-[0.15em] text-primary-foreground/75 mb-4">{settings?.hero_eyebrow || "Información pública en español · Oregon"}</p>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
               {settings?.hero_title || "Información clara para vivir, participar y salir adelante en Oregon."}
             </h1>
