@@ -3,44 +3,51 @@ import { useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
 import { api } from "@/lib/api";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { ArticleCard, ResourceCard, Empty } from "@/components/shared";
 
-export default function ContentListPage({ kind, route, title, subtitle, categoriesKey, cardType, filters = {} }) {
+export default function ContentListPage({ kind, route, title, subtitle, categoriesKey, cardType, groups = null }) {
   const [items, setItems] = useState([]);
   const [config, setConfig] = useState(null);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [params, setParams] = useSearchParams();
+  const group = params.get("group") || "";
   const category = params.get("category") || "";
-  const city = params.get("city") || "";
   const q = params.get("q") || "";
   const [search, setSearch] = useState(q);
 
   useEffect(() => { api.get("/config").then((r) => setConfig(r.data)); }, []);
 
+  const activeGroup = groups ? groups.find((g) => g.label === group) : null;
+
   const load = useCallback(() => {
     setLoading(true);
     const p = new URLSearchParams({ limit: "50" });
     if (category) p.set("category", category);
-    if (city) p.set("city", city);
+    else if (activeGroup?.categories) p.set("categories", activeGroup.categories.join(","));
     if (q) p.set("q", q);
     api.get(`/public/${kind}?${p.toString()}`).then((r) => {
       setItems(r.data.items); setTotal(r.data.total);
     }).finally(() => setLoading(false));
-  }, [kind, category, city, q]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kind, category, group, q]);
 
   useEffect(() => { load(); }, [load]);
 
-  const setFilter = (key, value) => {
+  const selectGroup = (g) => {
     const next = new URLSearchParams(params);
-    if (value) next.set(key, value); else next.delete(key);
+    next.delete("category");
+    if (g) next.set("group", g); else next.delete("group");
     setParams(next);
   };
+  const selectCategory = (c) => {
+    const next = new URLSearchParams(params);
+    if (c) next.set("category", c); else next.delete("category");
+    setParams(next);
+  };
+  const submitSearch = (e) => { e.preventDefault(); const next = new URLSearchParams(params); if (search) next.set("q", search); else next.delete("q"); setParams(next); };
 
-  const submitSearch = (e) => { e.preventDefault(); setFilter("q", search); };
-
-  const cats = config?.[categoriesKey] || [];
+  const flatCats = config?.[categoriesKey] || [];
 
   return (
     <div>
@@ -57,20 +64,42 @@ export default function ContentListPage({ kind, route, title, subtitle, categori
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-10">
-        <div className="flex flex-wrap gap-2 mb-8" data-testid="category-filters">
-          <button onClick={() => setFilter("category", "")}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${!category ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70 hover:bg-accent"}`}
+        {/* Top level: groups or flat categories */}
+        <div className="flex flex-wrap gap-2 mb-4" data-testid="category-filters">
+          <button onClick={() => groups ? selectGroup("") : selectCategory("")}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${(!group && !category) ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70 hover:bg-accent"}`}
             data-testid="filter-todas">Todas</button>
-          {cats.map((c) => (
-            <button key={c} onClick={() => setFilter("category", c)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${category === c ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70 hover:bg-accent"}`}
-              data-testid={`filter-${c}`}>{c}</button>
-          ))}
+          {groups
+            ? groups.map((g) => (
+                <button key={g.label} onClick={() => selectGroup(g.label)}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${group === g.label ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70 hover:bg-accent"}`}
+                  data-testid={`filter-${g.label}`}>{g.label}</button>
+              ))
+            : flatCats.map((c) => (
+                <button key={c} onClick={() => selectCategory(c)}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${category === c ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70 hover:bg-accent"}`}
+                  data-testid={`filter-${c}`}>{c}</button>
+              ))}
         </div>
 
-        {(category || city || q) && (
+        {/* Sub-tabs for a group with children */}
+        {activeGroup?.subs?.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-8 pl-1 border-l-2 border-primary/30 ml-1" data-testid="subcategory-filters">
+            <span className="self-center text-xs uppercase tracking-wider text-muted-foreground mr-1 pl-3">{activeGroup.label}:</span>
+            <button onClick={() => selectCategory("")}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${!category ? "bg-primary/15 text-primary" : "bg-secondary text-foreground/60 hover:bg-accent"}`}
+              data-testid="subfilter-todo">Todo</button>
+            {activeGroup.subs.map((s) => (
+              <button key={s} onClick={() => selectCategory(s)}
+                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${category === s ? "bg-primary/15 text-primary" : "bg-secondary text-foreground/60 hover:bg-accent"}`}
+                data-testid={`subfilter-${s}`}>{s}</button>
+            ))}
+          </div>
+        )}
+
+        {(group || category || q) && (
           <p className="mb-6 text-sm text-muted-foreground">
-            {total} resultado(s){category ? ` en "${category}"` : ""}{q ? ` para "${q}"` : ""}
+            {total} resultado(s){category ? ` en "${category}"` : (group ? ` en "${group}"` : "")}{q ? ` para "${q}"` : ""}
             {" "}<button onClick={() => setParams({})} className="text-primary underline" data-testid="clear-filters">Limpiar filtros</button>
           </p>
         )}

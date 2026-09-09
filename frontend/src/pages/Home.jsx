@@ -122,7 +122,7 @@ export default function Home() {
             action={<Link to="/recursos"><Button variant="outline" data-testid="ver-todos-recursos">Ver todos los recursos <ArrowRight className="ml-1.5 h-4 w-4" /></Button></Link>} />
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {RESOURCE_CATS.map(({ label, icon: Icon }) => (
-              <Link key={label} to={`/recursos?category=${encodeURIComponent(label)}`}
+              <Link key={label} to={`/recursos?group=${encodeURIComponent(label)}`}
                 data-testid={`recurso-cat-${label}`}
                 className="group flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-6 text-center transition-all hover:border-primary hover:shadow-md">
                 <span className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">

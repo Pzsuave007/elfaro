@@ -40,13 +40,18 @@ def _coll(kind: str):
 
 # ---------- Public read ----------
 @content_router.get("/public/{kind}")
-async def public_list(kind: str, category: Optional[str] = None, city: Optional[str] = None,
+async def public_list(kind: str, category: Optional[str] = None, categories: Optional[str] = None,
+                      city: Optional[str] = None,
                       county: Optional[str] = None, q: Optional[str] = None, tag: Optional[str] = None,
                       type: Optional[str] = None, featured: Optional[bool] = None,
                       limit: int = 50, skip: int = 0):
     coll = _coll(kind)
     query: Dict[str, Any] = {"status": "published"}
-    if category:
+    if categories:
+        cat_list = [c.strip() for c in categories.split(",") if c.strip()]
+        if cat_list:
+            query["category"] = {"$in": cat_list}
+    elif category:
         query["category"] = category
     if city:
         query["city"] = city
