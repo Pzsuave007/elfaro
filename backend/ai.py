@@ -13,25 +13,20 @@ from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 ai_router = APIRouter(prefix="/api/ai", tags=["ai"])
 
-EDITORIAL_SYSTEM_PROMPT = """El Foro In Oregon es una plataforma informativa no partidista.
+EDITORIAL_SYSTEM_PROMPT = """Eres editor de El Foro In Oregon, una plataforma informativa NO partidista en español para la comunidad latina de Oregon.
 
-Nunca debes promover o atacar partidos políticos, candidatos o ideologías.
+REGLAS DE CONTENIDO:
+- No promuevas ni ataques partidos, candidatos o ideologías. Separa hechos, declaraciones y opiniones.
+- NO inventes datos. Nunca inventes nombres de personas, teléfonos, direcciones, fechas, montos, premios, estadísticas ni URLs. Si no lo sabes con certeza, no lo escribas.
+- En temas legales, electorales, de salud, gobierno o asistencia, remite a fuentes oficiales.
 
-Presenta información verificable y separa hechos, declaraciones y opiniones.
-
-No inventes datos.
-
-Cuando un dato no esté confirmado, debes indicarlo.
-
-Nunca elimines referencias importantes.
-
-En temas legales, electorales, de salud, gobierno o asistencia pública, incentiva el uso de fuentes oficiales.
-
-Escribe en español claro y accesible para la comunidad latina de Oregon.
-
-Evita lenguaje político cargado, sensacionalista o emocional.
-
-Cuando compares candidatos usa estructuras neutrales como "Candidato A propone..." y "Candidato B propone...". Nunca declares quién es mejor."""
+REGLAS DE ESTILO (MUY IMPORTANTES):
+- Escribe CONCRETO y ÚTIL. Cada párrafo debe dar información específica que ayude al lector: qué es, a quién aplica, qué hacer, dónde ir, qué documentos, cuánto cuesta, cuándo, cómo.
+- PROHIBIDO el relleno y las generalidades vacías. Nada de frases de adorno tipo "el arte es una herramienta poderosa" o "la representación importa". Ve directo a la información.
+- SÉ BREVE. Prefiere textos cortos y densos en información. NO alargues para alcanzar una longitud. Si no tienes suficiente información concreta y verificable, escribe menos.
+- NUNCA escribas notas dirigidas al editor dentro del contenido (por ejemplo: "para una versión publicada conviene...", "se recomienda verificar...", "este artículo puede servir como punto de partida"). El texto es para el lector final.
+- Español claro y accesible. Sin lenguaje sensacionalista ni emocional.
+- Al comparar candidatos usa "Candidato A propone..." / "Candidato B propone...". Nunca declares quién es mejor."""
 
 # action -> instruction template
 ACTIONS: Dict[str, str] = {
@@ -142,9 +137,25 @@ GEN_SCHEMA = {
     "places": '{"title":"","summary":"","description":"","history":"","location":"","hours":"","cost":"","accessibility":"","parking":"","rules":"","services":"","city":"","category":"(una de: Parques estatales, Historia, Ciudades, Museos, Recursos naturales, Lugares culturales, Lugares importantes)","official_source":"(URL oficial solo si la conoces con certeza, si no deja vacío)","image_prompt":"(foto documental realista del lugar en inglés, sin texto)"}',
 }
 
-NO_INVENT = ("MUY IMPORTANTE: No inventes datos específicos (teléfonos, direcciones, fechas exactas, montos, URLs). "
-             "Si no conoces un dato con certeza, deja ese campo vacío. En temas legales, de salud, gobierno o recursos, "
-             "recuerda al lector consultar la fuente oficial. Escribe en español claro para la comunidad latina de Oregon.")
+NO_INVENT = ("Reglas: NO inventes nombres de personas, teléfonos, direcciones, fechas, montos, premios, estadísticas ni URLs; "
+             "si no lo sabes con certeza, omítelo (no lo rellenes con generalidades). Escribe CONCRETO y ÚTIL, sin relleno "
+             "ni frases de adorno, y SÉ BREVE. Nunca escribas notas al editor dentro del texto. Si el editor te da datos, "
+             "nombres o enlaces oficiales, úsalos como base y no los cambies.")
+
+# Guía de concreción y longitud por tipo de contenido (para generate-post)
+GEN_GUIDE = {
+    "articles": ("El cuerpo debe ser CONCISO: 3 a 6 párrafos cortos, máximo ~450 palabras. Empieza con lo más útil. "
+                 "Incluye información práctica y concreta (qué es, a quién le sirve, pasos, requisitos, cómo o dónde "
+                 "obtener ayuda o más información). Si el tema pide nombres de personas o casos específicos que no "
+                 "puedes verificar, NO los inventes: en su lugar escribe una guía práctica concreta (qué existe, cómo "
+                 "encontrarlo, cómo participar o acceder). Nada de relleno ni frases de adorno."),
+    "resources": ("Enfócate en información accionable: qué ofrece exactamente, quién califica, qué documentos se "
+                  "necesitan y cómo aplicar paso a paso. Específico y breve."),
+    "oregon-info": ("Explica en lenguaje sencillo y concreto: qué cambió, a quién afecta, cuándo y qué debe hacer la "
+                    "persona, con pasos claros. Breve, sin relleno."),
+    "places": ("Da información práctica del lugar: qué es, qué se puede hacer, ubicación general, horario/costo y "
+               "accesibilidad si los conoces. Concreto y breve, sin adornos."),
+}
 
 
 class ResearchRequest(BaseModel):
@@ -188,8 +199,11 @@ async def research(req: ResearchRequest, user: dict = Depends(get_current_user))
     extra = f" Instrucciones del editor: {req.instructions}." if req.instructions else ""
     prompt = (f"Actúa como asistente de investigación editorial. Sobre el tema \"{req.topic}\", "
               f"propón 4 opciones DISTINTAS de {ctx}.{extra} "
-              f"Para cada opción incluye: title (título claro y no sensacionalista), angle (el enfoque en pocas palabras) "
-              f"y summary (1-2 oraciones). {NO_INVENT} "
+              f"Cada opción debe ser CONCRETA y útil: elige ángulos prácticos sobre los que se pueda escribir "
+              f"información específica y verificable (guías, pasos, requisitos, cómo encontrar o acceder a algo, qué "
+              f"existe y para quién). Evita ángulos vagos o que exijan inventar nombres o datos que no se pueden confirmar. "
+              f"Para cada opción incluye: title (título claro, específico y no sensacionalista), angle (el enfoque en "
+              f"pocas palabras) y summary (1-2 oraciones concretas). {NO_INVENT} "
               f'Responde SOLO con JSON: {{"options":[{{"title":"","angle":"","summary":""}}]}}')
     raw = await _run(EDITORIAL_SYSTEM_PROMPT, prompt)
     data = _parse_json(raw)
@@ -203,11 +217,13 @@ async def generate_post(req: GenerateRequest, user: dict = Depends(get_current_u
         raise HTTPException(status_code=400, detail="Tipo de contenido no válido")
     sel = req.selection or {}
     ctx = KIND_CONTEXT.get(req.kind, "contenido informativo")
-    extra = f" Instrucciones del editor: {req.instructions}." if req.instructions else ""
+    guide = GEN_GUIDE.get(req.kind, "")
+    extra = f" Datos/instrucciones del editor (úsalos como base, no inventes más allá de esto): {req.instructions}." if req.instructions else ""
     prompt = (f"Crea un BORRADOR completo de {ctx} basado en esta opción elegida:\n"
               f"Título: {sel.get('title','')}\nEnfoque: {sel.get('angle','')}\nResumen: {sel.get('summary','')}\n"
-              f"Tema general: {req.topic}.{extra}\n\n{NO_INVENT}\n\n"
-              f"Rellena TODOS los campos posibles. Responde SOLO con JSON con esta forma exacta:\n{schema}")
+              f"Tema general: {req.topic}.{extra}\n\n{guide}\n\n{NO_INVENT}\n\n"
+              f"Rellena TODOS los campos posibles con información concreta y útil (sin relleno). "
+              f"Responde SOLO con JSON con esta forma exacta:\n{schema}")
     raw = await _run(EDITORIAL_SYSTEM_PROMPT, prompt)
     fields = _parse_json(raw)
     fields["used_ai"] = True

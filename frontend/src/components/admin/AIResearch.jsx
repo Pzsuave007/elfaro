@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
 export function AIResearch({ kind, setValues }) {
@@ -99,8 +100,11 @@ export function AIResearch({ kind, setValues }) {
             <Input value={topic} onChange={(e) => setTopic(e.target.value)} className="mt-1"
               placeholder="Ej: ayuda para pagar la calefacción, Silver Falls, licencia de conducir..." data-testid="research-topic" />
           </div>
-          <Input value={instructions} onChange={(e) => setInstructions(e.target.value)}
-            placeholder="Instrucciones opcionales (enfoque, ciudad, tono...)" data-testid="research-instructions" />
+          <div>
+            <label className="text-sm font-medium">Datos, nombres o enlaces (opcional)</label>
+            <Textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} rows={3} className="mt-1"
+              placeholder="Pega aquí datos reales, nombres, cifras o enlaces oficiales que ya tengas. La AI los usará como base y no inventará. También puedes indicar enfoque, ciudad o tono." data-testid="research-instructions" />
+          </div>
           <Button type="button" onClick={doResearch} disabled={busy === "research"} data-testid="research-run">
             {busy === "research" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Telescope className="mr-2 h-4 w-4" />}
             Investigar opciones
