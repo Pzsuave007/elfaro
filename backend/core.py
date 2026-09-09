@@ -58,7 +58,7 @@ ARTICLE_TYPES = ["Noticias", "Opinión", "Entrevista", "Análisis", "Informació
 RESOURCE_CATEGORIES = [
     "Vivienda", "Renta", "Alimentos", "Salud", "Salud mental", "Empleo", "Educación",
     "Familias", "Niños", "Adultos mayores", "Inmigración", "Asistencia legal",
-    "Transporte", "Servicios públicos", "Emergencias",
+    "Transporte", "Servicios públicos", "Emergencias", "Instituciones públicas", "Programas estatales",
 ]
 
 OREGON_INFO_CATEGORIES = [
@@ -68,7 +68,7 @@ OREGON_INFO_CATEGORIES = [
 
 PLACE_CATEGORIES = [
     "Parques estatales", "Historia", "Ciudades", "Museos", "Recursos naturales",
-    "Carreteras", "Lugares culturales", "Instituciones públicas", "Programas estatales", "Lugares importantes",
+    "Lugares culturales", "Lugares importantes",
 ]
 
 SOURCE_TYPES = ["Gobierno", "Agencia estatal", "Municipio", "Organización", "Medio", "Candidato", "Documento", "Otro"]

@@ -11,6 +11,8 @@ const GROUPS = [
   { label: "Asistencia legal", categories: ["Asistencia legal"] },
   { label: "Transporte", categories: ["Transporte"] },
   { label: "Servicios públicos", categories: ["Servicios públicos"] },
+  { label: "Instituciones públicas", categories: ["Instituciones públicas"] },
+  { label: "Programas estatales", categories: ["Programas estatales"] },
   { label: "Emergencias", categories: ["Emergencias"] },
 ];
 

@@ -3,9 +3,7 @@ import ContentListPage from "@/components/ContentListPage";
 const GROUPS = [
   { label: "Naturaleza", categories: ["Parques estatales", "Recursos naturales"], subs: ["Parques estatales", "Recursos naturales"] },
   { label: "Cultura e Historia", categories: ["Historia", "Museos", "Lugares culturales"], subs: ["Historia", "Museos", "Lugares culturales"] },
-  { label: "Instituciones y Programas", categories: ["Instituciones públicas", "Programas estatales"], subs: ["Instituciones públicas", "Programas estatales"] },
   { label: "Ciudades", categories: ["Ciudades"] },
-  { label: "Carreteras", categories: ["Carreteras"] },
   { label: "Lugares importantes", categories: ["Lugares importantes"] },
 ];
 
