@@ -119,8 +119,8 @@ export default function Home() {
       {/* RECURSOS */}
       <section className="bg-secondary/40 border-y border-border" data-testid="section-recursos">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14 sm:py-20">
-          <SectionHeading eyebrow="Recursos para la comunidad" title="Encuentra la ayuda que necesitas"
-            description="Programas de vivienda, salud, empleo, educación y más, con información verificada."
+          <SectionHeading eyebrow="Recursos para la comunidad" title={settings?.recursos_title || "Encuentra la ayuda que necesitas"}
+            description={settings?.recursos_description || "Programas de vivienda, salud, empleo, educación y más, con información verificada."}
             action={<Link to="/recursos"><Button variant="outline" data-testid="ver-todos-recursos">Ver todos los recursos <ArrowRight className="ml-1.5 h-4 w-4" /></Button></Link>} />
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {RESOURCE_CATS.map(({ label, icon: Icon }) => (
@@ -139,8 +139,8 @@ export default function Home() {
 
       {/* OREGON TE INFORMA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14 sm:py-20" data-testid="section-oregon-te-informa">
-        <SectionHeading eyebrow="Oregon Te Informa" title="Leyes y gobierno, en lenguaje sencillo"
-          description="Entiende qué cambió, a quién afecta y qué necesitas hacer."
+        <SectionHeading eyebrow="Oregon Te Informa" title={settings?.oregon_title || "Leyes y gobierno, en lenguaje sencillo"}
+          description={settings?.oregon_description || "Entiende qué cambió, a quién afecta y qué necesitas hacer."}
           action={<Link to="/oregon-te-informa"><Button variant="outline">Ver todo <ArrowRight className="ml-1.5 h-4 w-4" /></Button></Link>} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {oregonInfo.map((item) => (

@@ -223,6 +223,11 @@ DEFAULT_SETTINGS = {
     "hero_subtitle": "Noticias, recursos, leyes e información pública en español para nuestra comunidad.",
     "hero_search_label": "¿Qué información estás buscando?",
     "hero_image": "https://images.unsplash.com/photo-1530563937443-1f02f662fa5c?crop=entropy&cs=srgb&fm=jpg&q=85&w=1600",
+    "palette": "green",
+    "recursos_title": "Encuentra la ayuda que necesitas",
+    "recursos_description": "Programas de vivienda, salud, empleo, educación y más, con información verificada.",
+    "oregon_title": "Leyes y gobierno, en lenguaje sencillo",
+    "oregon_description": "Entiende qué cambió, a quién afecta y qué necesitas hacer.",
 }
 
 

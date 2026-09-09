@@ -2,6 +2,7 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
+import ThemeApplier from "@/components/ThemeApplier";
 
 import PublicLayout from "@/components/PublicLayout";
 import Home from "@/pages/Home";
@@ -35,6 +36,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ThemeApplier />
         <Routes>
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />

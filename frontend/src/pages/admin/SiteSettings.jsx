@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Save, Loader2, Upload, Sparkles, Image as ImageIcon, Check, Search } from "lucide-react";
+import { Save, Loader2, Upload, Sparkles, Image as ImageIcon, Check, Search, Monitor, Smartphone, Palette } from "lucide-react";
 import { api, mediaUrl } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { PALETTES, applyPalette, DEFAULT_PALETTE } from "@/lib/palettes";
 
 function HeroImageField({ value, onChange }) {
   const [busy, setBusy] = useState(false);
@@ -117,22 +118,31 @@ function HeroTextAI({ apply }) {
 export default function SiteSettings() {
   const [values, setValues] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [device, setDevice] = useState("desktop");
 
   useEffect(() => { api.get("/site-settings").then((r) => setValues(r.data)); }, []);
 
   const upd = (k, v) => setValues((prev) => ({ ...prev, [k]: v }));
+
+  const pickPalette = (key) => {
+    upd("palette", key);
+    applyPalette(key); // vista previa en vivo
+  };
 
   const save = async () => {
     setSaving(true);
     try {
       const { data } = await api.put("/admin/site-settings", values);
       setValues(data);
-      toast.success("Configuración guardada. La portada ya está actualizada.");
+      applyPalette(data.palette || DEFAULT_PALETTE);
+      toast.success("Configuración guardada. El sitio ya está actualizado.");
     } catch (e) { toast.error(e.response?.data?.detail || "Error al guardar"); }
     finally { setSaving(false); }
   };
 
   if (!values) return <div className="text-muted-foreground">Cargando...</div>;
+
+  const isMobile = device === "mobile";
 
   return (
     <div className="max-w-4xl mx-auto" data-testid="site-settings-page">
@@ -140,23 +150,63 @@ export default function SiteSettings() {
         <h1 className="font-serif text-3xl font-bold">Configuración del sitio</h1>
         <HeroTextAI apply={(opt) => setValues((v) => ({ ...v, hero_eyebrow: opt.eyebrow ?? v.hero_eyebrow, hero_title: opt.title ?? v.hero_title, hero_subtitle: opt.subtitle ?? v.hero_subtitle }))} />
       </div>
-      <p className="text-muted-foreground mb-6">Edita la portada (hero) de la página de inicio: textos e imagen de fondo. Los cambios se reflejan de inmediato en el sitio.</p>
+      <p className="text-muted-foreground mb-6">Edita la portada, los colores del sitio y los textos de las secciones. Los cambios se reflejan de inmediato al guardar.</p>
+
+      {/* PALETA DE COLORES */}
+      <div className="mb-8" data-testid="palette-section">
+        <div className="flex items-center gap-2 mb-3">
+          <Palette className="h-5 w-5 text-primary" />
+          <h2 className="font-serif text-xl font-bold">Paleta de colores</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">Elige un esquema. La vista previa se aplica al instante; guarda para hacerlo permanente.</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {Object.entries(PALETTES).map(([key, p]) => {
+            const active = (values.palette || DEFAULT_PALETTE) === key;
+            return (
+              <button key={key} type="button" onClick={() => pickPalette(key)} data-testid={`palette-${key}`}
+                className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-all ${active ? "border-primary ring-2 ring-primary/30 bg-accent/50" : "border-border hover:border-primary/50"}`}>
+                <span className="flex -space-x-1.5 shrink-0">
+                  <span className="h-7 w-7 rounded-full border-2 border-card" style={{ background: p.swatch[0] }} />
+                  <span className="h-7 w-7 rounded-full border-2 border-card" style={{ background: p.swatch[1] }} />
+                </span>
+                <span className="text-sm font-medium">{p.label}</span>
+                {active && <Check className="ml-auto h-4 w-4 text-primary" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Live preview */}
-      <div className="relative overflow-hidden rounded-xl bg-primary text-primary-foreground mb-8" data-testid="hero-preview">
-        <div className="absolute inset-0 opacity-20">
-          {values.hero_image && <img src={mediaUrl(values.hero_image)} alt="" className="h-full w-full object-cover" />}
+      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+        <h2 className="font-serif text-xl font-bold">Portada (hero)</h2>
+        <div className="inline-flex rounded-lg border border-border p-0.5">
+          <button type="button" onClick={() => setDevice("desktop")} data-testid="preview-desktop"
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm ${!isMobile ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+            <Monitor className="h-4 w-4" /> Escritorio
+          </button>
+          <button type="button" onClick={() => setDevice("mobile")} data-testid="preview-mobile"
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm ${isMobile ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+            <Smartphone className="h-4 w-4" /> Móvil
+          </button>
         </div>
-        <div className="relative p-8 sm:p-10">
-          <p className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/70 mb-3">{values.hero_eyebrow}</p>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold leading-tight max-w-2xl">{values.hero_title}</h2>
-          <p className="mt-3 text-primary-foreground/80 max-w-xl">{values.hero_subtitle}</p>
-          <div className="mt-5 flex items-center gap-2 max-w-md">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
-              <div className="h-11 rounded-lg bg-white pl-10 flex items-center text-sm text-muted-foreground">{values.hero_search_label}</div>
+      </div>
+      <div className={isMobile ? "flex justify-center mb-8" : "mb-8"}>
+        <div className={`relative overflow-hidden rounded-xl bg-primary text-primary-foreground ${isMobile ? "w-[360px] border-4 border-foreground/10" : "w-full"}`} data-testid="hero-preview">
+          <div className="absolute inset-0 opacity-20">
+            {values.hero_image && <img src={mediaUrl(values.hero_image)} alt="" className="h-full w-full object-cover" />}
+          </div>
+          <div className={`relative ${isMobile ? "p-5" : "p-8 sm:p-10"}`}>
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/70 mb-3">{values.hero_eyebrow}</p>
+            <h2 className={`font-serif font-bold leading-tight max-w-2xl ${isMobile ? "text-xl" : "text-2xl sm:text-3xl"}`}>{values.hero_title}</h2>
+            <p className="mt-3 text-primary-foreground/80 max-w-xl text-sm">{values.hero_subtitle}</p>
+            <div className={`mt-5 gap-2 max-w-md ${isMobile ? "flex flex-col" : "flex items-center"}`}>
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                <div className="h-11 rounded-lg bg-white pl-10 flex items-center text-sm text-muted-foreground">{values.hero_search_label}</div>
+              </div>
+              <span className="h-11 px-5 rounded-lg bg-terracotta text-white text-sm font-medium grid place-items-center">Buscar</span>
             </div>
-            <span className="h-11 px-5 rounded-lg bg-terracotta text-white text-sm font-medium grid place-items-center">Buscar</span>
           </div>
         </div>
       </div>
@@ -181,6 +231,36 @@ export default function SiteSettings() {
         <div>
           <Label className="mb-1.5 block">Imagen de fondo del hero</Label>
           <HeroImageField value={values.hero_image} onChange={(v) => upd("hero_image", v)} />
+        </div>
+      </div>
+
+      {/* TEXTOS DE SECCIONES */}
+      <div className="mt-10 pt-8 border-t border-border" data-testid="sections-texts">
+        <h2 className="font-serif text-xl font-bold mb-1">Textos de las secciones</h2>
+        <p className="text-sm text-muted-foreground mb-5">Personaliza los títulos de las secciones de la página de inicio.</p>
+        <div className="space-y-5">
+          <div className="rounded-lg border border-border p-4 space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Recursos para la comunidad</p>
+            <div>
+              <Label className="mb-1.5 block">Título</Label>
+              <Input value={values.recursos_title || ""} onChange={(e) => upd("recursos_title", e.target.value)} data-testid="field-recursos-title" />
+            </div>
+            <div>
+              <Label className="mb-1.5 block">Descripción</Label>
+              <Textarea rows={2} value={values.recursos_description || ""} onChange={(e) => upd("recursos_description", e.target.value)} data-testid="field-recursos-description" />
+            </div>
+          </div>
+          <div className="rounded-lg border border-border p-4 space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Oregon Te Informa</p>
+            <div>
+              <Label className="mb-1.5 block">Título</Label>
+              <Input value={values.oregon_title || ""} onChange={(e) => upd("oregon_title", e.target.value)} data-testid="field-oregon-title" />
+            </div>
+            <div>
+              <Label className="mb-1.5 block">Descripción</Label>
+              <Textarea rows={2} value={values.oregon_description || ""} onChange={(e) => upd("oregon_description", e.target.value)} data-testid="field-oregon-description" />
+            </div>
+          </div>
         </div>
       </div>
 
