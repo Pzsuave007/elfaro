@@ -303,9 +303,11 @@ async def generate_post(req: GenerateRequest, user: dict = Depends(get_current_u
 
 
 STYLE_PREFIX = {
-    "comic": ("Comic book / graphic novel illustration in an editorial magazine style, bold clean ink outlines, "
-              "cel-shaded flat colors, dynamic storytelling composition, expressive characters, subtle halftone "
-              "dot shading, vibrant but tasteful palette. A single vivid scene that tells the story at a glance. "
+    "comic": ("Vintage 1950s pulp comic book art, Golden Age / classic adventure comic style, hand-inked look. "
+              "Bold confident black ink linework, thick expressive outlines with dynamic line-weight, dense irregular "
+              "cross-hatching and hatching for shadows, heavy inking, dramatic high-contrast chiaroscuro, gritty stylized "
+              "realism. FULL COLOR: classic comic-book flat colors laid over the black ink, slightly aged newsprint "
+              "palette, rich but slightly muted retro tones. A single dramatic storytelling scene. "
               "NO text, NO words, NO speech bubbles, NO captions, no logos, no watermarks. "),
     "illustration": ("Editorial illustration, warm flat vector style, clean shapes, soft harmonious palette, subtle "
                      "texture, culturally relevant, no text, no words, no logos, no watermarks. "),
