@@ -303,6 +303,10 @@ async def generate_post(req: GenerateRequest, user: dict = Depends(get_current_u
 
 
 STYLE_PREFIX = {
+    "comic": ("Comic book / graphic novel illustration in an editorial magazine style, bold clean ink outlines, "
+              "cel-shaded flat colors, dynamic storytelling composition, expressive characters, subtle halftone "
+              "dot shading, vibrant but tasteful palette. A single vivid scene that tells the story at a glance. "
+              "NO text, NO words, NO speech bubbles, NO captions, no logos, no watermarks. "),
     "illustration": ("Editorial illustration, warm flat vector style, clean shapes, soft harmonious palette, subtle "
                      "texture, culturally relevant, no text, no words, no logos, no watermarks. "),
     "photo": ("Documentary-style realistic photograph, editorial, natural lighting, no text, no logos, no watermarks. "),
@@ -344,7 +348,7 @@ class IllustrateRequest(BaseModel):
     title: str = ""
     summary: str = ""
     body: str = ""
-    style: Optional[str] = "illustration"   # illustration | photo
+    style: Optional[str] = "comic"   # comic | illustration | photo
     custom_prompt: Optional[str] = ""
 
 
@@ -355,12 +359,12 @@ async def illustrate(req: IllustrateRequest, user: dict = Depends(get_current_us
     if not scene:
         ctx_txt = f"Título: {req.title}\nResumen: {req.summary}\nExtracto: {(req.body or '')[:800]}"
         prompt = ("A partir de este contenido de un artículo para la comunidad latina de Oregon, escribe UNA descripción "
-                  "visual en INGLÉS (1-2 oraciones) para ilustrarlo. Describe una escena concreta, representativa y "
-                  "respetuosa que capture la idea del artículo. Sin texto, sin palabras, sin logos ni marcas de agua. "
-                  f"Devuelve SOLO la descripción, sin comillas.\n\n{ctx_txt}")
+                  "visual en INGLÉS (1-2 oraciones) para ilustrarlo. Describe UNA sola escena concreta, representativa y "
+                  "respetuosa, con un momento narrativo claro que se entienda de un vistazo. Sin texto, sin palabras, sin "
+                  f"logos ni marcas de agua. Devuelve SOLO la descripción, sin comillas.\n\n{ctx_txt}")
         scene = (await _run(EDITORIAL_SYSTEM_PROMPT, prompt)).strip()
     if not scene:
         raise HTTPException(status_code=400, detail="No hay suficiente contenido para ilustrar")
-    prefix = STYLE_PREFIX.get(req.style, STYLE_PREFIX["illustration"])
+    prefix = STYLE_PREFIX.get(req.style, STYLE_PREFIX["comic"])
     url = await _gen_and_store(prefix + scene, user)
     return {"url": url, "prompt": scene}

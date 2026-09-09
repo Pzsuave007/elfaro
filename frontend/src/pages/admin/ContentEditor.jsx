@@ -21,7 +21,7 @@ const WORKFLOW = [
 
 function AIImageButton({ aiContext, onChange }) {
   const [open, setOpen] = useState(false);
-  const [style, setStyle] = useState("illustration");
+  const [style, setStyle] = useState("comic");
   const [customPrompt, setCustomPrompt] = useState("");
   const [busy, setBusy] = useState(false);
   const gen = async () => {
@@ -60,7 +60,7 @@ function AIImageButton({ aiContext, onChange }) {
         <div className="space-y-4">
           <div>
             <Label className="mb-1.5 block">Estilo</Label>
-            <div className="inline-flex rounded-lg border border-border p-0.5">{tab("illustration", "Ilustración")}{tab("photo", "Foto")}</div>
+            <div className="inline-flex rounded-lg border border-border p-0.5">{tab("comic", "Cómic")}{tab("illustration", "Ilustración")}{tab("photo", "Foto")}</div>
           </div>
           <div>
             <Label className="mb-1.5 block">Describe la imagen (opcional)</Label>
