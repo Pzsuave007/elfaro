@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, Upload, Plus, X, Eye } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Upload, Plus, X, Eye, Sparkles, Image as ImageIcon } from "lucide-react";
 import { api, mediaUrl } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { SCHEMAS, KIND_META } from "@/pages/admin/schemas";
 import { AIAssistant } from "@/components/admin/AIAssistant";
 import { AIResearch } from "@/components/admin/AIResearch";
@@ -18,7 +19,65 @@ const WORKFLOW = [
   { v: "scheduled", l: "Programado" }, { v: "published", l: "Publicado" }, { v: "archived", l: "Archivado" },
 ];
 
-function ImageUpload({ value, onChange, testid }) {
+function AIImageButton({ aiContext, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [style, setStyle] = useState("illustration");
+  const [customPrompt, setCustomPrompt] = useState("");
+  const [busy, setBusy] = useState(false);
+  const gen = async () => {
+    setBusy(true);
+    try {
+      const { data } = await api.post("/ai/illustrate", {
+        kind: aiContext.kind,
+        title: aiContext.title || "",
+        summary: aiContext.summary || "",
+        body: aiContext.body || "",
+        style,
+        custom_prompt: customPrompt,
+      });
+      onChange(data.url);
+      toast.success("Imagen generada y aplicada");
+      setOpen(false);
+    } catch (e) { toast.error(e.response?.data?.detail || "Error al generar imagen"); }
+    finally { setBusy(false); }
+  };
+  const tab = (v, l) => (
+    <button type="button" onClick={() => setStyle(v)} data-testid={`illustrate-style-${v}`}
+      className={`rounded-md px-3 py-1.5 text-sm ${style === v ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{l}</button>
+  );
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button type="button" variant="outline" size="sm" className="border-primary/40 text-primary shrink-0" data-testid="ai-illustrate-btn">
+          <Sparkles className="mr-1.5 h-4 w-4" /> Ilustrar con AI
+        </Button>
+      </DialogTrigger>
+      <DialogContent data-testid="ai-illustrate-dialog">
+        <DialogHeader>
+          <DialogTitle className="font-serif flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" /> Ilustrar el contenido</DialogTitle>
+          <DialogDescription>La AI crea una imagen que representa el artículo. Describe la escena o deja que la AI la proponga a partir del título y el resumen. Libre de copyright.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label className="mb-1.5 block">Estilo</Label>
+            <div className="inline-flex rounded-lg border border-border p-0.5">{tab("illustration", "Ilustración")}{tab("photo", "Foto")}</div>
+          </div>
+          <div>
+            <Label className="mb-1.5 block">Describe la imagen (opcional)</Label>
+            <Textarea rows={3} value={customPrompt} onChange={(e) => setCustomPrompt(e.target.value)}
+              placeholder="Si lo dejas vacío, la AI creará la escena a partir del contenido del artículo." data-testid="ai-illustrate-prompt" />
+          </div>
+          <Button type="button" onClick={gen} disabled={busy} data-testid="ai-illustrate-run">
+            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ImageIcon className="mr-2 h-4 w-4" />} Generar imagen
+          </Button>
+          <p className="text-xs text-muted-foreground">Puede tardar hasta 1 minuto.</p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ImageUpload({ value, onChange, testid, aiContext }) {
   const [busy, setBusy] = useState(false);
   const upload = async (e) => {
     const file = e.target.files?.[0];
@@ -35,14 +94,15 @@ function ImageUpload({ value, onChange, testid }) {
   };
   return (
     <div className="space-y-2">
-      <div className="flex gap-2">
-        <Input value={value || ""} onChange={(e) => onChange(e.target.value)} placeholder="URL de imagen o sube un archivo" data-testid={testid} />
+      <div className="flex gap-2 flex-wrap">
+        <Input value={value || ""} onChange={(e) => onChange(e.target.value)} placeholder="URL de imagen o sube un archivo" data-testid={testid} className="min-w-[180px] flex-1" />
         <label className="shrink-0">
           <input type="file" accept="image/*" className="hidden" onChange={upload} />
           <span className="inline-flex h-10 items-center gap-1.5 rounded-md border border-input px-3 text-sm cursor-pointer hover:bg-accent">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />} Subir
           </span>
         </label>
+        {aiContext && <AIImageButton aiContext={aiContext} onChange={onChange} />}
       </div>
       {value && <img src={mediaUrl(value)} alt="" className="h-32 rounded-lg object-cover border border-border" />}
     </div>
@@ -153,7 +213,8 @@ export default function ContentEditor() {
         );
       }
       case "image":
-        return <ImageUpload value={values[f.name]} onChange={(v) => upd(f.name, v)} testid={`field-${f.name}`} />;
+        return <ImageUpload value={values[f.name]} onChange={(v) => upd(f.name, v)} testid={`field-${f.name}`}
+          aiContext={{ kind, title: values.title, summary: values.summary, body: values.body || values.description || values.what_offers || values.que_cambio || "" }} />;
       case "gallery":
         return <GalleryEditor value={values[f.name]} onChange={(v) => upd(f.name, v)} />;
       case "tags":

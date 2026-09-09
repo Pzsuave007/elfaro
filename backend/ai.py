@@ -302,18 +302,22 @@ async def generate_post(req: GenerateRequest, user: dict = Depends(get_current_u
     return {"fields": fields}
 
 
-@ai_router.post("/image")
-async def generate_image(req: ImageRequest, user: dict = Depends(get_current_user)):
+STYLE_PREFIX = {
+    "illustration": ("Editorial illustration, warm flat vector style, clean shapes, soft harmonious palette, subtle "
+                     "texture, culturally relevant, no text, no words, no logos, no watermarks. "),
+    "photo": ("Documentary-style realistic photograph, editorial, natural lighting, no text, no logos, no watermarks. "),
+}
+
+
+async def _gen_and_store(styled_prompt: str, user: dict) -> str:
     from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
     from storage import put_object
     key = os.environ.get("EMERGENT_LLM_KEY")
     if not key:
         raise HTTPException(status_code=500, detail="No hay clave de AI configurada")
-    styled = (f"Documentary-style realistic photograph, editorial, natural lighting, no text, no logos, no watermarks. "
-              f"{req.prompt}")
     try:
         image_gen = OpenAIImageGeneration(api_key=key)
-        images = await image_gen.generate_images(prompt=styled, model="gpt-image-1", number_of_images=1)
+        images = await image_gen.generate_images(prompt=styled_prompt, model="gpt-image-1", number_of_images=1)
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Error al generar imagen: {str(e)[:200]}")
     if not images:
@@ -325,4 +329,38 @@ async def generate_image(req: ImageRequest, user: dict = Depends(get_current_use
            "content_type": "image/png", "size": result.get("size", len(data)), "kind": "image",
            "uploaded_by": user["id"], "is_deleted": False, "ai_generated": True, "created_at": now_iso()}
     await db.media.insert_one(doc)
-    return {"url": f"/api/media/file/{result['path']}"}
+    return f"/api/media/file/{result['path']}"
+
+
+@ai_router.post("/image")
+async def generate_image(req: ImageRequest, user: dict = Depends(get_current_user)):
+    styled = STYLE_PREFIX["photo"] + req.prompt
+    url = await _gen_and_store(styled, user)
+    return {"url": url}
+
+
+class IllustrateRequest(BaseModel):
+    kind: Optional[str] = "articles"
+    title: str = ""
+    summary: str = ""
+    body: str = ""
+    style: Optional[str] = "illustration"   # illustration | photo
+    custom_prompt: Optional[str] = ""
+
+
+@ai_router.post("/illustrate")
+async def illustrate(req: IllustrateRequest, user: dict = Depends(get_current_user)):
+    """Genera una ilustración (o foto) que escenifica el artículo. Crea la descripción visual a partir del contenido."""
+    scene = (req.custom_prompt or "").strip()
+    if not scene:
+        ctx_txt = f"Título: {req.title}\nResumen: {req.summary}\nExtracto: {(req.body or '')[:800]}"
+        prompt = ("A partir de este contenido de un artículo para la comunidad latina de Oregon, escribe UNA descripción "
+                  "visual en INGLÉS (1-2 oraciones) para ilustrarlo. Describe una escena concreta, representativa y "
+                  "respetuosa que capture la idea del artículo. Sin texto, sin palabras, sin logos ni marcas de agua. "
+                  f"Devuelve SOLO la descripción, sin comillas.\n\n{ctx_txt}")
+        scene = (await _run(EDITORIAL_SYSTEM_PROMPT, prompt)).strip()
+    if not scene:
+        raise HTTPException(status_code=400, detail="No hay suficiente contenido para ilustrar")
+    prefix = STYLE_PREFIX.get(req.style, STYLE_PREFIX["illustration"])
+    url = await _gen_and_store(prefix + scene, user)
+    return {"url": url, "prompt": scene}
