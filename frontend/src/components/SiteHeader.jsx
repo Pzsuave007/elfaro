@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/input";
 
 const NAV = [
   { label: "Inicio", path: "/" },
-  { label: "Entérate", path: "/enterate" },
   { label: "Recursos", path: "/recursos" },
   { label: "Oregon Te Informa", path: "/oregon-te-informa" },
   { label: "Conoce Oregon", path: "/conoce-oregon" },
+  { label: "Historias", path: "/historias" },
 ];
 
 export function SiteHeader() {

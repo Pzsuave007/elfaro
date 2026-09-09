@@ -23,7 +23,7 @@ export default function ArticleDetail() {
     api.get(`/public/articles/${slug}`).then((r) => setItem(r.data)).catch(() => setError(true));
   }, [slug]);
 
-  if (error) return <div className="max-w-2xl mx-auto px-6 py-24 text-center"><h1 className="font-serif text-3xl font-bold">Artículo no encontrado</h1><Link to="/enterate" className="mt-4 inline-block text-primary underline">Volver a Entérate</Link></div>;
+  if (error) return <div className="max-w-2xl mx-auto px-6 py-24 text-center"><h1 className="font-serif text-3xl font-bold">Historia no encontrada</h1><Link to="/historias" className="mt-4 inline-block text-primary underline">Volver a Historias</Link></div>;
   if (!item) return <div className="max-w-3xl mx-auto px-6 py-24"><div className="h-8 w-2/3 bg-secondary animate-pulse rounded mb-4" /><div className="h-64 bg-secondary animate-pulse rounded" /></div>;
 
   const isOpinion = ["Opinión", "Contenido patrocinado"].includes(item.content_type);
@@ -31,8 +31,8 @@ export default function ArticleDetail() {
   return (
     <article className="pb-16">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-10">
-        <Link to="/enterate" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6" data-testid="back-link">
-          <ArrowLeft className="h-4 w-4" /> Entérate
+        <Link to="/historias" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6" data-testid="back-link">
+          <ArrowLeft className="h-4 w-4" /> Historias de la comunidad
         </Link>
         <div className="flex items-center gap-2 flex-wrap mb-4">
           {item.category && <CategoryBadge>{item.category}</CategoryBadge>}
@@ -66,7 +66,7 @@ export default function ArticleDetail() {
         {item.tags?.length > 0 && (
           <div className="mt-8 flex flex-wrap gap-2" data-testid="article-tags">
             {item.tags.map((t) => (
-              <Link key={t} to={`/enterate?q=${encodeURIComponent(t)}`} className="rounded-full bg-secondary px-3 py-1 text-xs text-foreground/70 hover:bg-accent">#{t}</Link>
+              <Link key={t} to={`/historias?q=${encodeURIComponent(t)}`} className="rounded-full bg-secondary px-3 py-1 text-xs text-foreground/70 hover:bg-accent">#{t}</Link>
             ))}
           </div>
         )}
@@ -79,7 +79,7 @@ export default function ArticleDetail() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 mt-16">
           <h2 className="font-serif text-2xl font-bold mb-6">Artículos relacionados</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {item.related.map((r) => <ArticleCard key={r.id} item={r} to={`/enterate/${r.slug}`} />)}
+            {item.related.map((r) => <ArticleCard key={r.id} item={r} to={`/historias/${r.slug}`} />)}
           </div>
         </div>
       )}

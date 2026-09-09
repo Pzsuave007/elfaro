@@ -8,6 +8,7 @@ import { ArticleCard, ResourceCard, Empty } from "@/components/shared";
 export default function ContentListPage({ kind, route, title, subtitle, categoriesKey, cardType, groups = null }) {
   const [items, setItems] = useState([]);
   const [config, setConfig] = useState(null);
+  const [facets, setFacets] = useState({});
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [params, setParams] = useSearchParams();
@@ -17,6 +18,11 @@ export default function ContentListPage({ kind, route, title, subtitle, categori
   const [search, setSearch] = useState(q);
 
   useEffect(() => { api.get("/config").then((r) => setConfig(r.data)); }, []);
+  useEffect(() => { api.get(`/public/${kind}/facets`).then((r) => setFacets(r.data || {})).catch(() => setFacets({})); }, [kind]);
+
+  const hasContent = (cats) => (cats || []).some((c) => (facets[c] || 0) > 0);
+  const visibleGroups = groups ? groups.filter((g) => hasContent(g.categories)) : null;
+  const visibleFlat = (config?.[categoriesKey] || []).filter((c) => (facets[c] || 0) > 0);
 
   const activeGroup = groups ? groups.find((g) => g.label === group) : null;
 
@@ -47,7 +53,7 @@ export default function ContentListPage({ kind, route, title, subtitle, categori
   };
   const submitSearch = (e) => { e.preventDefault(); const next = new URLSearchParams(params); if (search) next.set("q", search); else next.delete("q"); setParams(next); };
 
-  const flatCats = config?.[categoriesKey] || [];
+  const activeSubs = (activeGroup?.subs || []).filter((s) => (facets[s] || 0) > 0);
 
   return (
     <div>
@@ -70,12 +76,12 @@ export default function ContentListPage({ kind, route, title, subtitle, categori
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${(!group && !category) ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70 hover:bg-accent"}`}
             data-testid="filter-todas">Todas</button>
           {groups
-            ? groups.map((g) => (
+            ? visibleGroups.map((g) => (
                 <button key={g.label} onClick={() => selectGroup(g.label)}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${group === g.label ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70 hover:bg-accent"}`}
                   data-testid={`filter-${g.label}`}>{g.label}</button>
               ))
-            : flatCats.map((c) => (
+            : visibleFlat.map((c) => (
                 <button key={c} onClick={() => selectCategory(c)}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${category === c ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70 hover:bg-accent"}`}
                   data-testid={`filter-${c}`}>{c}</button>
@@ -83,13 +89,13 @@ export default function ContentListPage({ kind, route, title, subtitle, categori
         </div>
 
         {/* Sub-tabs for a group with children */}
-        {activeGroup?.subs?.length > 0 && (
+        {activeSubs.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-8 pl-1 border-l-2 border-primary/30 ml-1" data-testid="subcategory-filters">
             <span className="self-center text-xs uppercase tracking-wider text-muted-foreground mr-1 pl-3">{activeGroup.label}:</span>
             <button onClick={() => selectCategory("")}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${!category ? "bg-primary/15 text-primary" : "bg-secondary text-foreground/60 hover:bg-accent"}`}
               data-testid="subfilter-todo">Todo</button>
-            {activeGroup.subs.map((s) => (
+            {activeSubs.map((s) => (
               <button key={s} onClick={() => selectCategory(s)}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${category === s ? "bg-primary/15 text-primary" : "bg-secondary text-foreground/60 hover:bg-accent"}`}
                 data-testid={`subfilter-${s}`}>{s}</button>

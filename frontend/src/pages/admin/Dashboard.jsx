@@ -30,7 +30,7 @@ export default function Dashboard() {
       <p className="text-muted-foreground mt-1">Resumen de contenido y actividad de la plataforma.</p>
 
       <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Newspaper} label="Artículos" value={stats.articles.total} sub={`${stats.articles.published} publicados · ${stats.articles.draft} borradores`} to="/admin/articles" testid="stat-articles" />
+        <StatCard icon={Newspaper} label="Historias" value={stats.articles.total} sub={`${stats.articles.published} publicadas · ${stats.articles.draft} borradores`} to="/admin/articles" testid="stat-articles" />
         <StatCard icon={LifeBuoy} label="Recursos" value={stats.resources.total} sub={`${stats.resources.published} publicados`} to="/admin/resources" testid="stat-resources" />
         <StatCard icon={ScrollText} label="Leyes publicadas" value={stats.oregon_info.published} sub={`${stats.oregon_info.total} en total`} to="/admin/oregon-info" testid="stat-oregon-info" />
         <StatCard icon={MapPin} label="Lugares" value={stats.places.published} sub={`${stats.places.total} en total`} to="/admin/places" testid="stat-places" />
@@ -47,7 +47,7 @@ export default function Dashboard() {
             <ul className="divide-y divide-border">
               {stats.top_articles.map((a) => (
                 <li key={a.slug} className="flex items-center justify-between py-2.5">
-                  <Link to={`/enterate/${a.slug}`} target="_blank" className="text-sm hover:text-primary truncate pr-4">{a.title}</Link>
+                  <Link to={`/historias/${a.slug}`} target="_blank" className="text-sm hover:text-primary truncate pr-4">{a.title}</Link>
                   <span className="flex items-center gap-1 text-sm text-muted-foreground shrink-0"><Eye className="h-3.5 w-3.5" /> {a.views || 0}</span>
                 </li>
               ))}

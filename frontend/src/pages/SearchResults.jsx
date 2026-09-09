@@ -4,7 +4,7 @@ import { api } from "@/lib/api";
 import { ArticleCard, ResourceCard, Empty } from "@/components/shared";
 
 const GROUPS = [
-  { key: "articles", label: "Noticias (Entérate)", route: "/enterate", card: "article" },
+  { key: "articles", label: "Historias de la comunidad", route: "/historias", card: "article" },
   { key: "resources", label: "Recursos", route: "/recursos", card: "resource" },
   { key: "oregon-info", label: "Oregon Te Informa", route: "/oregon-te-informa", card: "article" },
   { key: "places", label: "Conoce Oregon", route: "/conoce-oregon", card: "article" },

@@ -84,10 +84,10 @@ export default function Home() {
 
       {/* LO QUE DEBES SABER HOY */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14 sm:py-20" data-testid="section-hoy">
-        <SectionHeading eyebrow="Lo que debes saber hoy" title="Historias destacadas"
-          action={<Link to="/enterate"><Button variant="outline" data-testid="ver-mas-enterate">Ver todo Entérate <ArrowRight className="ml-1.5 h-4 w-4" /></Button></Link>} />
+        <SectionHeading eyebrow="Historias de la comunidad" title="Historias destacadas"
+          action={<Link to="/historias"><Button variant="outline" data-testid="ver-mas-enterate">Ver todas las historias <ArrowRight className="ml-1.5 h-4 w-4" /></Button></Link>} />
         {lead && (
-          <Link to={`/enterate/${lead.slug}`} data-testid={`card-${lead.slug}`}
+          <Link to={`/historias/${lead.slug}`} data-testid={`card-${lead.slug}`}
             className="group grid md:grid-cols-2 overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md">
             <div className="aspect-[16/10] md:aspect-auto overflow-hidden">
               <img src={mediaUrl(lead.featured_image)} alt={lead.title} loading="lazy"
@@ -109,7 +109,7 @@ export default function Home() {
         )}
         {rest.length > 0 && (
           <div className={`mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 ${rest.length >= 3 ? "lg:grid-cols-3" : ""}`}>
-            {rest.map((a) => <ArticleCard key={a.id} item={a} to={`/enterate/${a.slug}`} />)}
+            {rest.map((a) => <ArticleCard key={a.id} item={a} to={`/historias/${a.slug}`} />)}
           </div>
         )}
       </section>

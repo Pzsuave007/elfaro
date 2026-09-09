@@ -37,8 +37,8 @@ function App() {
         <Routes>
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/enterate" element={<Enterate />} />
-            <Route path="/enterate/:slug" element={<ArticleDetail />} />
+            <Route path="/historias" element={<Enterate />} />
+            <Route path="/historias/:slug" element={<ArticleDetail />} />
             <Route path="/recursos" element={<Recursos />} />
             <Route path="/recursos/:slug" element={<ResourceDetail />} />
             <Route path="/oregon-te-informa" element={<OregonTeInforma />} />

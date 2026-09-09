@@ -16,8 +16,8 @@ const GROUPS = [
 export default function Enterate() {
   return (
     <ContentListPage
-      kind="articles" route="/enterate" title="Entérate"
-      subtitle="Noticias, análisis, entrevistas y opinión sobre Oregon y nuestra comunidad."
+      kind="articles" route="/historias" title="Historias de la comunidad"
+      subtitle="Historias, guías y perspectivas de nuestra comunidad en Oregon. Contenido que no caduca."
       categoriesKey="article_categories" cardType="article" groups={GROUPS}
     />
   );

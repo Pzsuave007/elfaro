@@ -1,6 +1,6 @@
 // Field schema config for the generic content editor, per content kind.
 export const KIND_META = {
-  articles: { label: "Artículo", title: "Artículos", route: "/enterate", categoriesKey: "article_categories", aiTarget: "body" },
+  articles: { label: "Historia", title: "Historias de la comunidad", route: "/historias", categoriesKey: "article_categories", aiTarget: "body" },
   resources: { label: "Recurso", title: "Recursos", route: "/recursos", categoriesKey: "resource_categories", aiTarget: "what_offers" },
   "oregon-info": { label: "Explicación", title: "Oregon Te Informa", route: "/oregon-te-informa", categoriesKey: "oregon_info_categories", aiTarget: "body" },
   places: { label: "Lugar", title: "Conoce Oregon", route: "/conoce-oregon", categoriesKey: "place_categories", aiTarget: "description" },

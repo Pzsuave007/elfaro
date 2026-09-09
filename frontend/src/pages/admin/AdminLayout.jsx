@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 const NAV = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard, end: true },
-  { label: "Artículos", path: "/admin/articles", icon: Newspaper },
+  { label: "Historias", path: "/admin/articles", icon: Newspaper },
   { label: "Recursos", path: "/admin/resources", icon: LifeBuoy },
   { label: "Oregon Te Informa", path: "/admin/oregon-info", icon: ScrollText },
   { label: "Conoce Oregon", path: "/admin/places", icon: MapPin },

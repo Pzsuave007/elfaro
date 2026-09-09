@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 
 const SECTIONS = [
-  { label: "Entérate", path: "/enterate" },
   { label: "Recursos", path: "/recursos" },
   { label: "Oregon Te Informa", path: "/oregon-te-informa" },
   { label: "Conoce Oregon", path: "/conoce-oregon" },
+  { label: "Historias de la comunidad", path: "/historias" },
   { label: "Elecciones 2026", path: "/elecciones" },
 ];
 

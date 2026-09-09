@@ -74,6 +74,16 @@ async def public_list(kind: str, category: Optional[str] = None, categories: Opt
     total = await coll.count_documents(query)
     return {"items": items, "total": total}
 
+@content_router.get("/public/{kind}/facets")
+async def facets(kind: str):
+    """Counts of published items per category (used to hide empty tabs)."""
+    coll = _coll(kind)
+    pipeline = [{"$match": {"status": "published"}}, {"$group": {"_id": "$category", "count": {"$sum": 1}}}]
+    rows = await coll.aggregate(pipeline).to_list(200)
+    return {r["_id"]: r["count"] for r in rows if r["_id"]}
+
+
+
 
 @content_router.get("/public/{kind}/{slug}")
 async def public_detail(kind: str, slug: str):
