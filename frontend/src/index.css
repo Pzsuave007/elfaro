@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Work+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: 'Work Sans', 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  :root {
+    --background: 40 22% 98%;
+    --foreground: 210 10% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 10% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 10% 12%;
+    --primary: 150 38% 17%;
+    --primary-foreground: 40 30% 97%;
+    --secondary: 40 26% 93%;
+    --secondary-foreground: 150 38% 17%;
+    --muted: 40 16% 92%;
+    --muted-foreground: 210 7% 40%;
+    --accent: 150 14% 90%;
+    --accent-foreground: 150 38% 17%;
+    --destructive: 4 62% 48%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 45 13% 86%;
+    --input: 45 13% 86%;
+    --ring: 150 38% 17%;
+    --terracotta: 15 46% 55%;
+    --ochre: 28 26% 44%;
+    --info: 205 45% 30%;
+    --chart-1: 150 38% 22%;
+    --chart-2: 15 46% 55%;
+    --chart-3: 205 45% 30%;
+    --chart-4: 28 40% 50%;
+    --chart-5: 150 14% 60%;
+    --radius: 0.75rem;
+  }
+  .dark {
+    --background: 200 12% 9%;
+    --foreground: 40 20% 94%;
+    --card: 200 11% 12%;
+    --card-foreground: 40 20% 94%;
+    --popover: 200 11% 12%;
+    --popover-foreground: 40 20% 94%;
+    --primary: 150 30% 55%;
+    --primary-foreground: 200 12% 9%;
+    --secondary: 200 8% 18%;
+    --secondary-foreground: 40 20% 94%;
+    --muted: 200 8% 18%;
+    --muted-foreground: 40 8% 62%;
+    --accent: 150 15% 22%;
+    --accent-foreground: 40 20% 94%;
+    --destructive: 4 62% 48%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 200 8% 22%;
+    --input: 200 8% 22%;
+    --ring: 150 30% 55%;
+    --terracotta: 15 50% 60%;
+    --ochre: 28 30% 55%;
+    --info: 205 45% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1, h2, h3, h4, .font-serif {
+    font-family: 'Lora', Georgia, serif;
+  }
+}
+
+@layer utilities {
+  .text-terracotta { color: hsl(var(--terracotta)); }
+  .bg-terracotta { background-color: hsl(var(--terracotta)); }
+  .eyebrow {
+    @apply text-xs font-sans font-semibold uppercase tracking-[0.15em] text-primary;
+  }
+  .prose-foro p { @apply text-base sm:text-lg leading-relaxed text-foreground/80 mb-5; }
+  .prose-foro h2 { @apply text-2xl font-serif font-bold mt-8 mb-3; }
+  .prose-foro h3 { @apply text-xl font-serif font-semibold mt-6 mb-2; }
+  .prose-foro ul { @apply list-disc pl-6 mb-5 space-y-1 text-foreground/80; }
+  .fade-up { animation: fadeUp 0.6s cubic-bezier(0.2,0.7,0.2,1) both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+::selection { background: hsl(var(--primary) / 0.15); }
