@@ -1,0 +1,22 @@
+{
+  "summary": "Full E2E test of NEW 'Configuración del sitio' admin section and 'Crear borradores de todas' batch flow. All 7 requested behaviors passed against the live preview URL. Backend site-settings GET/PUT verified via curl (unknown fields stripped). Frontend: admin login OK, admin-nav-settings visible, navigates to /admin/settings which shows site-settings-page with all 5 fields pre-populated + live hero-preview. Editing title and clicking settings-save shows success toast; reload keeps the new value; public homepage /  hero-section reflects the saved title. 'Generar textos con AI' opens the dialog, run returned 4 hero-text-option-* entries; hero-text-use-0 applied eyebrow/title/subtitle to the fields and closed the dialog. 'Generar imagen con AI' applied a new /api/media/file/... URL in ~16s with success toast (no error). In /admin/places/new, ai-research-btn → research-topic 'parque estatal Silver Falls' → research-run returned 4 options → 'research-create-all' created 4 drafts, showed '4 borrador(es) creado(s)' toast, closed dialog, and navigated to /admin/places where the 4 new drafts appear (marked AI, status Borrador). Cleaned up: deleted the 4 created drafts and restored hero to defaults.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/backend_test.py"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "SiteSettings.jsx save() calls PUT with the entire values object; backend correctly strips unknown fields via clean_payload comprehension. OK.",
+    "AIResearch.createAll() catches per-option errors but does NOT surface a partial-failure summary to the user (only 'X borrador(es) creado(s)'). If 2 of 4 fail silently the user sees 2 created and no explanation. Consider showing failed count too. Minor UX.",
+    "AIResearch.createAll() does not disable the individual 'Usar esta opción' buttons via visual state during batch — they rely on disabled={!!busy} which does work. OK.",
+    "HeroImageField uploads via POST /media then uses data.url; ai/image response also returns url. Consistent. OK.",
+    "SiteSettings preview uses mediaUrl(values.hero_image) which handles both absolute URLs and /api/media/file/... — verified rendering both unsplash and AI-generated images."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (site-settings GET/PUT + ai/hero-text verified via curl)", "frontend": "100% (7/7 requested behaviors passed)"},
+  "test_credentials": "admin@elforo.org / ForoOregon2026 (super_admin) — verified working",
+  "seed_data_creation": "Created 4 AI-generated place drafts via 'Crear borradores de todas' (Fort Vancouver, Museo de Arte de Portland, Columbia River Gorge, Smith Rock). All 4 were DELETED via admin API afterward. Hero settings were changed during test and restored to defaults at the end.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Preview URL: https://recursos-or.preview.emergentagent.com. Frontend auth token is stored in localStorage but under a non-'token' key (browser fetch with localStorage.getItem('token') returned 401) — use axios instance from src/lib/api which is already wired. For batch draft creation via UI, allow up to 60-90s (4 sequential /ai/generate-post + /admin create calls, ~10-15s each).",
+  "rca of the issue": "N/A — no issues found."
+}

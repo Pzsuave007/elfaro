@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Telescope, Loader2, Wand2, Image as ImageIcon, Check, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Telescope, Loader2, Wand2, Image as ImageIcon, Check, ArrowRight, Layers } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -7,15 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 
 export function AIResearch({ kind, setValues }) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [topic, setTopic] = useState("");
   const [instructions, setInstructions] = useState("");
   const [options, setOptions] = useState(null);
-  const [busy, setBusy] = useState(null); // research | generate | image
+  const [busy, setBusy] = useState(null); // research | generate | image | batch
+  const [batch, setBatch] = useState(null); // {done,total}
   const [imagePrompt, setImagePrompt] = useState("");
   const [generated, setGenerated] = useState(false);
 
-  const reset = () => { setOptions(null); setGenerated(false); setImagePrompt(""); };
+  const reset = () => { setOptions(null); setGenerated(false); setImagePrompt(""); setBatch(null); };
 
   const doResearch = async () => {
     if (!topic.trim()) return toast.error("Escribe un tema para investigar");
@@ -52,6 +55,31 @@ export function AIResearch({ kind, setValues }) {
     finally { setBusy(null); }
   };
 
+  const createAll = async () => {
+    if (!options?.length) return;
+    setBusy("batch");
+    let created = 0;
+    for (let i = 0; i < options.length; i++) {
+      setBatch({ done: i, total: options.length });
+      try {
+        const { data } = await api.post("/ai/generate-post", { kind, topic, selection: options[i], instructions });
+        const f = { ...data.fields };
+        delete f.image_prompt;
+        await api.post(`/admin/${kind}`, f);
+        created++;
+      } catch (e) { /* continúa con las demás */ }
+    }
+    setBusy(null); setBatch(null);
+    if (created) {
+      const failed = options.length - created;
+      toast.success(`${created} borrador(es) creado(s)${failed ? `, ${failed} falló(aron)` : ""}. Revísalos y agrega imágenes antes de publicar.`);
+      setOpen(false);
+      navigate(`/admin/${kind}`);
+    } else {
+      toast.error("No se pudo crear ningún borrador");
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { reset(); } }}>
       <DialogTrigger asChild>
@@ -80,7 +108,14 @@ export function AIResearch({ kind, setValues }) {
 
           {options && (
             <div className="space-y-3 pt-2" data-testid="research-options">
-              <p className="text-sm font-medium text-muted-foreground">Elige una opción para generar el borrador:</p>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-medium text-muted-foreground">Elige una opción o crea borradores de todas:</p>
+                <Button type="button" size="sm" variant="secondary" disabled={!!busy || !options.length} onClick={createAll} data-testid="research-create-all">
+                  {busy === "batch"
+                    ? <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> Creando {batch ? `${batch.done + 1}/${batch.total}` : ""}...</>
+                    : <><Layers className="mr-1.5 h-4 w-4" /> Crear borradores de todas ({options.length})</>}
+                </Button>
+              </div>
               {options.map((opt, i) => (
                 <div key={i} className="rounded-lg border border-border p-4" data-testid={`research-option-${i}`}>
                   <h4 className="font-serif font-bold">{opt.title}</h4>

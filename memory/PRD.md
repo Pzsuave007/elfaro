@@ -25,6 +25,7 @@ Plataforma web informativa, no partidista y en español para la comunidad hispan
 - ✅ Demo content seeded (3 articles, 3 resources, 3 oregon-info, 3 places, 1 election / 2 races / 4 candidates, all DEMO).
 - ✅ Testing: 23/23 backend pytest pass; frontend flows verified.
 - ✅ AI "Investigar con AI" flow (2026-06): AIResearch component integrated into ContentEditor for all kinds (articles/resources/oregon-info/places). Admin types a topic → AI returns 4 distinct options → picks one → full draft fills editor fields (used_ai=true, status=draft) → optional copyright-free AI image (gpt-image-1) applied to featured_image. Backend endpoints /api/ai/research, /api/ai/generate-post, /api/ai/image. Verified E2E (testing iteration_2: 6/6 frontend behaviors pass).
+- ✅ Site Settings + batch drafts (2026-06): New admin section "Configuración del sitio" (/admin/settings, editor+) to edit homepage hero (eyebrow, title, subtitle, search label, background image) with live preview. AI buttons: "Generar textos con AI" (POST /ai/hero-text → 4 options) and "Generar imagen con AI" (POST /ai/image, copyright-free). Persisted in db.settings singleton via GET /api/site-settings + PUT /api/admin/site-settings; Home.jsx consumes it live. Also: "Investigar con AI" now has "Crear borradores de todas" to batch-create a draft per research option at once. Verified E2E (testing iteration_3: 7/7 pass).
 
 ## Backlog / Remaining (P1/P2)
 - P1: Rich text editor (currently textarea), scheduled auto-publish job, SEO meta tags injection + sitemap.xml/robots.txt served, ballot measures.

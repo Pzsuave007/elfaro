@@ -21,6 +21,7 @@ export default function Home() {
   const [articles, setArticles] = useState([]);
   const [oregonInfo, setOregonInfo] = useState([]);
   const [places, setPlaces] = useState([]);
+  const [settings, setSettings] = useState(null);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
 
@@ -28,6 +29,7 @@ export default function Home() {
     api.get("/public/articles?limit=5").then((r) => setArticles(r.data.items));
     api.get("/public/oregon-info?limit=3").then((r) => setOregonInfo(r.data.items));
     api.get("/public/places?limit=3").then((r) => setPlaces(r.data.items));
+    api.get("/site-settings").then((r) => setSettings(r.data)).catch(() => {});
   }, []);
 
   const submit = (e) => {
@@ -42,20 +44,20 @@ export default function Home() {
       {/* HERO */}
       <section className="relative overflow-hidden bg-primary text-primary-foreground" data-testid="hero-section">
         <div className="absolute inset-0 opacity-20">
-          <img src="https://images.unsplash.com/photo-1530563937443-1f02f662fa5c?crop=entropy&cs=srgb&fm=jpg&q=85&w=1600" alt="" className="h-full w-full object-cover" />
+          <img src={mediaUrl(settings?.hero_image) || "https://images.unsplash.com/photo-1530563937443-1f02f662fa5c?crop=entropy&cs=srgb&fm=jpg&q=85&w=1600"} alt="" className="h-full w-full object-cover" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 sm:py-24 lg:py-28">
           <div className="max-w-3xl fade-up">
-            <p className="eyebrow text-primary-foreground/70 mb-4">Información pública en español · Oregon</p>
+            <p className="eyebrow text-primary-foreground/70 mb-4">{settings?.hero_eyebrow || "Información pública en español · Oregon"}</p>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
-              Información clara para vivir, participar y salir adelante en Oregon.
+              {settings?.hero_title || "Información clara para vivir, participar y salir adelante en Oregon."}
             </h1>
             <p className="mt-5 text-lg sm:text-xl text-primary-foreground/80 leading-relaxed max-w-2xl">
-              Noticias, recursos, leyes e información pública en español para nuestra comunidad.
+              {settings?.hero_subtitle || "Noticias, recursos, leyes e información pública en español para nuestra comunidad."}
             </p>
 
             <form onSubmit={submit} className="mt-9 max-w-2xl" data-testid="hero-search-form">
-              <label className="block text-sm font-medium text-primary-foreground/80 mb-2">¿Qué información estás buscando?</label>
+              <label className="block text-sm font-medium text-primary-foreground/80 mb-2">{settings?.hero_search_label || "¿Qué información estás buscando?"}</label>
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />

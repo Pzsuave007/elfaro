@@ -29,6 +29,7 @@ import RaceEditor from "@/pages/admin/RaceEditor";
 import CandidateEditor from "@/pages/admin/CandidateEditor";
 import MediaLibrary from "@/pages/admin/MediaLibrary";
 import UsersAdmin from "@/pages/admin/UsersAdmin";
+import SiteSettings from "@/pages/admin/SiteSettings";
 
 function App() {
   return (
@@ -64,6 +65,7 @@ function App() {
             <Route path="races/:raceId" element={<RaceEditor />} />
             <Route path="races/:raceId/candidate/:cid" element={<CandidateEditor />} />
             <Route path="media" element={<MediaLibrary />} />
+            <Route path="settings" element={<SiteSettings />} />
             <Route path="users" element={<UsersAdmin />} />
             <Route path=":kind" element={<ContentList />} />
             <Route path=":kind/:id" element={<ContentEditor />} />

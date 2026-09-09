@@ -164,6 +164,24 @@ class ImageRequest(BaseModel):
     prompt: str
 
 
+class HeroTextRequest(BaseModel):
+    instructions: Optional[str] = ""
+
+
+@ai_router.post("/hero-text")
+async def hero_text(req: HeroTextRequest, user: dict = Depends(get_current_user)):
+    extra = f" Instrucciones del editor: {req.instructions}." if req.instructions else ""
+    prompt = ("Eres editor de El Foro In Oregon, una plataforma informativa NO partidista en español para la comunidad "
+              "latina de Oregon. Propón 4 versiones DISTINTAS del texto de la portada (hero) del sitio.{extra} "
+              "Cada versión debe tener: eyebrow (frase corta superior, máx 8 palabras), title (título principal claro y "
+              "acogedor, no sensacionalista, máx 14 palabras) y subtitle (1 oración que resuma qué ofrece el sitio). "
+              "Tono cálido, claro y confiable. Nunca lenguaje político ni promesas. "
+              'Responde SOLO con JSON: {{"options":[{{"eyebrow":"","title":"","subtitle":""}}]}}').format(extra=extra)
+    raw = await _run(EDITORIAL_SYSTEM_PROMPT, prompt)
+    data = _parse_json(raw)
+    return {"options": data.get("options", [])}
+
+
 @ai_router.post("/research")
 async def research(req: ResearchRequest, user: dict = Depends(get_current_user)):
     ctx = KIND_CONTEXT.get(req.kind, "un contenido informativo para la comunidad de Oregon")

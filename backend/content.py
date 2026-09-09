@@ -216,6 +216,37 @@ async def get_config():
     }
 
 
+# ---------- Site settings (hero de la portada) ----------
+DEFAULT_SETTINGS = {
+    "hero_eyebrow": "Información pública en español · Oregon",
+    "hero_title": "Información clara para vivir, participar y salir adelante en Oregon.",
+    "hero_subtitle": "Noticias, recursos, leyes e información pública en español para nuestra comunidad.",
+    "hero_search_label": "¿Qué información estás buscando?",
+    "hero_image": "https://images.unsplash.com/photo-1530563937443-1f02f662fa5c?crop=entropy&cs=srgb&fm=jpg&q=85&w=1600",
+}
+
+
+@content_router.get("/site-settings")
+async def get_site_settings():
+    doc = await db.settings.find_one({"id": "site"}, {"_id": 0}) or {}
+    doc.pop("id", None)
+    doc.pop("updated_at", None)
+    return {**DEFAULT_SETTINGS, **doc}
+
+
+@content_router.put("/admin/site-settings")
+async def update_site_settings(payload: Dict[str, Any], user: dict = Depends(require_role("editor"))):
+    payload.pop("_id", None)
+    payload.pop("id", None)
+    clean_payload = {k: payload[k] for k in DEFAULT_SETTINGS if k in payload}
+    clean_payload["updated_at"] = now_iso()
+    await db.settings.update_one({"id": "site"}, {"$set": clean_payload}, upsert=True)
+    doc = await db.settings.find_one({"id": "site"}, {"_id": 0}) or {}
+    doc.pop("id", None)
+    doc.pop("updated_at", None)
+    return {**DEFAULT_SETTINGS, **doc}
+
+
 # ---------- Global search ----------
 @content_router.get("/search")
 async def global_search(q: str = Query(...), request: Request = None):
