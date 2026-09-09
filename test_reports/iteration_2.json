@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend E2E test of 'Investigar con AI' flow inside ContentEditor (both /admin/resources/new and /admin/articles/new). All 6 requested behaviors verified end-to-end against the live preview URL. Admin login OK, ai-research-btn visible next to Asistente AI on both editors, dialog opens, research returns 4 options, applying option 0 populates fields (title 'LIHEAP en Oregon: ayuda para pagar la calefacción del hogar', category 'Servicios públicos', etc.) and shows research-generated confirmation + 'Contenido con apoyo de AI' badge. Image generation succeeded within ~20s and applied a /api/media/file/... URL to featured_image (no error toast). Save-draft succeeded with 'Guardado correctamente' toast and the new record appears in the Recursos list. Cleaned up the created test record via API afterwards.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_2.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "AIResearch.jsx: applyOption merges AI fields into values via setValues but does NOT set values.used_ai=true. The 'Contenido con apoyo de AI' banner in ContentEditor renders based on values.used_ai; it currently works only because the backend /ai/generate-post response includes used_ai=true in fields. If the backend response schema ever drops that flag, the badge silently disappears. Consider explicitly forcing used_ai:true on the frontend for safety.",
+    "AIResearch.jsx line 18 reset() clears options/generated/imagePrompt but NOT topic/instructions. This is fine (user can re-run) but the dialog visually retains previous inputs when reopened after close — actually the Dialog onOpenChange resets when closing so state persists across reopens via component staying mounted. Not a bug, but worth documenting.",
+    "genImage() sets featured_image directly with the /api/media/file/... path returned by backend; verified this is a same-origin URL that renders correctly in the ImageUpload preview via mediaUrl(). OK.",
+    "No loading/disabled state on the 'Cerrar y editar' button while image is generating — user could close mid-generation and lose the image (imagePrompt state is lost on dialog close via reset()). Minor UX suggestion: disable close while busy==='image'."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped as requested)", "frontend": "100% (6/6 requested behaviors passed)"},
+  "test_credentials": "admin@elforo.org / ForoOregon2026 (super_admin) — verified working",
+  "seed_data_creation": "Created and then deleted one test Recurso 'LIHEAP en Oregon: ayuda para pagar la calefacción del hogar' via the AI flow.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "AIResearch integration into ContentEditor works E2E. Preview URL is https://recursos-or.preview.emergentagent.com (from frontend/.env). AI research call took ~10-20s; generate-post ~10s; image generation ~15-20s in this run. Field 'field-featured_image' was populated with a relative /api/media/file/... URL. Note: the very first preview URL (use-env-vars.preview...) shows 'Preview Unavailable' — always read frontend/.env before running.",
+  "rca of the issue": "N/A — no issues found."
+}

@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SCHEMAS, KIND_META } from "@/pages/admin/schemas";
 import { AIAssistant } from "@/components/admin/AIAssistant";
+import { AIResearch } from "@/components/admin/AIResearch";
 
 const WORKFLOW = [
   { v: "draft", l: "Borrador" }, { v: "needs_review", l: "En revisión" }, { v: "approved", l: "Aprobado" },
@@ -172,6 +173,7 @@ export default function ContentEditor() {
           <ArrowLeft className="h-4 w-4" /> {meta.title}
         </button>
         <div className="flex items-center gap-2">
+          <AIResearch kind={kind} setValues={setValues} />
           <AIAssistant kind={kind} values={values} setValues={setValues} />
           {values.status === "published" && values.slug && (
             <a href={`${meta.route}/${values.slug}`} target="_blank" rel="noopener noreferrer"><Button variant="outline" size="icon"><Eye className="h-4 w-4" /></Button></a>
