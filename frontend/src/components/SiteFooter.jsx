@@ -26,7 +26,7 @@ export function SiteFooter() {
           <div className="md:col-span-1">
             <Logo light />
             <p className="mt-4 text-sm text-primary-foreground/70 leading-relaxed max-w-xs">
-              Información para vivir, participar y entender Oregon. En español, para nuestra comunidad.
+              Información clara para vivir, participar y salir adelante en Oregon. En español, para nuestra comunidad.
             </p>
           </div>
           <div>

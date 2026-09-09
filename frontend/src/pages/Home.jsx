@@ -48,7 +48,7 @@ export default function Home() {
           <div className="max-w-3xl fade-up">
             <p className="eyebrow text-primary-foreground/70 mb-4">Información pública en español · Oregon</p>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
-              Información para vivir, participar y entender Oregon.
+              Información clara para vivir, participar y salir adelante en Oregon.
             </h1>
             <p className="mt-5 text-lg sm:text-xl text-primary-foreground/80 leading-relaxed max-w-2xl">
               Noticias, recursos, leyes e información pública en español para nuestra comunidad.
