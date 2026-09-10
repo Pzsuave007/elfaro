@@ -324,7 +324,7 @@ async def _gen_and_store(styled_prompt: str, user: dict, size: str = "1536x1024"
     if not key:
         raise HTTPException(status_code=500, detail="No hay clave de AI configurada")
     params = {"model": "openai/gpt-image-1", "prompt": styled_prompt, "n": 1,
-              "api_key": key, "quality": "high", "size": size}
+              "api_key": key, "quality": "medium", "size": size}
     if key.startswith("sk-emergent-"):
         params["api_base"] = get_integration_proxy_url() + "/llm"
     try:
