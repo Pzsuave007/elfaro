@@ -49,12 +49,12 @@ else
   exit 1
 fi
 
-# --- 4. Reiniciar el backend a la fuerza ---
+# --- 4. Reiniciar el backend a la fuerza (metodo probado: restart.sh) ---
 echo ">>> [4/5] Reiniciando el backend..."
 pkill -9 -f "uvicorn server:app" 2>/dev/null || true
 sleep 2
-as_user "cd $PROD && source venv/bin/activate && nohup uvicorn server:app --host 127.0.0.1 --port $PORT > $PROD/backend.log 2>&1 &"
-sleep 4
+as_user "PORT=$PORT CPANEL_USER=$U bash $REPO/deploy/restart.sh"
+sleep 3
 
 # --- 5. Probar ---
 echo ">>> [5/5] Probando el backend..."
