@@ -24,12 +24,12 @@ export function SponsorStrip({ variant = "section" }) {
       <p className={`text-xs font-semibold uppercase tracking-[0.15em] mb-5 ${isFooter ? "text-primary-foreground/60" : "text-muted-foreground text-center"}`}>
         Con el apoyo de nuestra comunidad
       </p>
-      <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+      <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
         {items.map((s) => {
           const big = s.tier === "oro";
           const logo = (
             <img src={mediaUrl(s.logo)} alt={s.title}
-              className={`object-contain grayscale hover:grayscale-0 transition-all ${big ? "h-14 sm:h-16" : s.tier === "plata" ? "h-11 sm:h-12" : "h-9 sm:h-10"} ${isFooter ? "brightness-0 invert opacity-70 hover:opacity-100" : "opacity-80 hover:opacity-100"}`} />
+              className={`object-contain grayscale hover:grayscale-0 transition-all ${big ? "h-20 sm:h-24" : s.tier === "plata" ? "h-14 sm:h-16" : "h-11 sm:h-12"} ${isFooter ? "brightness-0 invert opacity-70 hover:opacity-100" : "opacity-80 hover:opacity-100"}`} />
           );
           return s.logo ? (
             <Link key={s.id} to="/aliados" title={s.title} data-testid={`sponsor-logo-${s.id}`}>{logo}</Link>
