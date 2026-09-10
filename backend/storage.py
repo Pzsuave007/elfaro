@@ -106,6 +106,36 @@ async def upload_media(file: UploadFile = File(...), user: dict = Depends(get_cu
     return out
 
 
+@media_router.post("/optimize-existing")
+async def optimize_existing(user: dict = Depends(get_current_user)):
+    """Recomprime a WebP las imágenes ya guardadas (mismo path, sin romper enlaces)."""
+    if user.get("role") not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="No autorizado")
+    docs = await db.media.find({"kind": "image", "content_type": {"$ne": "image/webp"}}).to_list(5000)
+    optimized = skipped = failed = 0
+    bytes_before = bytes_after = 0
+    for d in docs:
+        path = d.get("storage_path")
+        if not path:
+            skipped += 1
+            continue
+        try:
+            data, _ct = get_object(path)
+            c_data, c_type, _ext = compress_image(data)
+            if not c_type or len(c_data) >= len(data):
+                skipped += 1
+                continue
+            put_object(path, c_data, "image/webp")
+            await db.media.update_one({"id": d["id"]}, {"$set": {"content_type": "image/webp", "size": len(c_data)}})
+            bytes_before += len(data)
+            bytes_after += len(c_data)
+            optimized += 1
+        except Exception:
+            failed += 1
+    return {"optimized": optimized, "skipped": skipped, "failed": failed,
+            "mb_before": round(bytes_before / 1048576, 2), "mb_after": round(bytes_after / 1048576, 2)}
+
+
 @media_router.get("/list")
 async def list_media(user: dict = Depends(get_current_user)):
     items = await db.media.find({"is_deleted": False}, {"_id": 0}).sort("created_at", -1).to_list(1000)
