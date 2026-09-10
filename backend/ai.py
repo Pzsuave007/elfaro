@@ -323,7 +323,7 @@ async def _gen_and_store(styled_prompt: str, user: dict) -> str:
         raise HTTPException(status_code=500, detail="No hay clave de AI configurada")
     try:
         image_gen = OpenAIImageGeneration(api_key=key)
-        images = await image_gen.generate_images(prompt=styled_prompt, model="gpt-image-1", number_of_images=1)
+        images = await image_gen.generate_images(prompt=styled_prompt, model="gpt-image-1", number_of_images=1, quality="high")
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Error al generar imagen: {str(e)[:200]}")
     if not images:
