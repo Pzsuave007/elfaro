@@ -1,7 +1,9 @@
 """Emergent Object Storage + Media Library."""
 import os
+import io
 import uuid
 import requests
+from PIL import Image
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Response, Query, Header
 
 from core import db, now_iso, new_id, clean
@@ -62,12 +64,35 @@ def get_object(path: str):
     return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
 
 
+def compress_image(data: bytes, max_width: int = 1600, quality: int = 82):
+    """Comprime a WebP (mucho más liviano). Devuelve (bytes, content_type, ext). Si falla, deja el original."""
+    try:
+        img = Image.open(io.BytesIO(data))
+        if img.mode == "P":
+            img = img.convert("RGBA")
+        elif img.mode in ("CMYK", "L", "LA"):
+            img = img.convert("RGB")
+        if img.width > max_width:
+            new_h = int(img.height * (max_width / img.width))
+            img = img.resize((max_width, new_h), Image.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, format="WEBP", quality=quality, method=6)
+        return buf.getvalue(), "image/webp", "webp"
+    except Exception:
+        return data, None, None
+
+
 @media_router.post("")
 async def upload_media(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
     ext = file.filename.split(".")[-1].lower() if "." in file.filename else "bin"
     content_type = file.content_type or MIME_TYPES.get(ext, "application/octet-stream")
-    path = f"{APP_NAME}/uploads/{user['id']}/{uuid.uuid4()}.{ext}"
     data = await file.read()
+    # Comprime imágenes (excepto GIF animado) a WebP para que carguen rápido.
+    if content_type.startswith("image") and ext != "gif":
+        c_data, c_type, c_ext = compress_image(data)
+        if c_type:
+            data, content_type, ext = c_data, c_type, c_ext
+    path = f"{APP_NAME}/uploads/{user['id']}/{uuid.uuid4()}.{ext}"
     result = put_object(path, data, content_type)
     doc = {
         "id": new_id(), "storage_path": result["path"], "original_filename": file.filename,
@@ -103,4 +128,4 @@ async def serve_file(path: str, auth: str = Query(None), authorization: str = He
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
     data, content_type = get_object(path)
     return Response(content=data, media_type=record.get("content_type", content_type),
-                    headers={"Cache-Control": "public, max-age=86400"})
+                    headers={"Cache-Control": "public, max-age=31536000, immutable"})

@@ -319,7 +319,7 @@ async def _gen_and_store(styled_prompt: str, user: dict, size: str = "1536x1024"
     import asyncio, requests
     from litellm import image_generation
     from emergentintegrations.llm.utils import get_integration_proxy_url
-    from storage import put_object
+    from storage import put_object, compress_image
     key = os.environ.get("EMERGENT_LLM_KEY")
     if not key:
         raise HTTPException(status_code=500, detail="No hay clave de AI configurada")
@@ -338,10 +338,16 @@ async def _gen_and_store(styled_prompt: str, user: dict, size: str = "1536x1024"
             raise Exception("Formato de imagen inesperado")
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Error al generar imagen: {str(e)[:200]}")
-    path = f"elforo-oregon/ai-images/{user['id']}/{new_id()}.png"
-    result = put_object(path, data, "image/png")
-    doc = {"id": new_id(), "storage_path": result["path"], "original_filename": "ai-generada.png",
-           "content_type": "image/png", "size": result.get("size", len(data)), "kind": "image",
+    # Comprime a WebP para que la imagen cargue rápido (PNG de gpt-image-1 pesa ~3 MB).
+    c_data, c_type, c_ext = compress_image(data)
+    if c_type:
+        data, ext, ctype = c_data, "webp", "image/webp"
+    else:
+        ext, ctype = "png", "image/png"
+    path = f"elforo-oregon/ai-images/{user['id']}/{new_id()}.{ext}"
+    result = put_object(path, data, ctype)
+    doc = {"id": new_id(), "storage_path": result["path"], "original_filename": f"ai-generada.{ext}",
+           "content_type": ctype, "size": result.get("size", len(data)), "kind": "image",
            "uploaded_by": user["id"], "is_deleted": False, "ai_generated": True, "created_at": now_iso()}
     await db.media.insert_one(doc)
     return f"/api/media/file/{result['path']}"
