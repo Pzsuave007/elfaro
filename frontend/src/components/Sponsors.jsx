@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Phone, MapPin, ExternalLink, Handshake } from "lucide-react";
+import { Phone, MapPin, ExternalLink, Handshake, Star } from "lucide-react";
 import { api, mediaUrl } from "@/lib/api";
 
 const TIER_LABEL = { oro: "Oro", plata: "Plata", bronce: "Bronce" };
@@ -177,22 +177,28 @@ export function SectionSponsorBanner({ section, subsection = "" }) {
     );
   }
 
-  const label = subSponsor ? `Sección ${sectionName} · ${subsection}` : `Sección ${sectionName}`;
+  const scope = subSponsor ? `${sectionName} · ${subsection}` : sectionName;
   return (
-    <div className="border-b border-border bg-card" data-testid="section-sponsor-banner">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-4 flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-4 min-w-0">
-          {s.logo
-            ? <img src={mediaUrl(s.logo)} alt={s.title} className="h-14 w-14 object-contain rounded-lg border border-border bg-white shrink-0" />
-            : <div className="h-14 w-14 rounded-lg bg-primary/10 grid place-items-center font-serif text-lg font-bold text-primary shrink-0">{s.title?.[0]}</div>}
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-terracotta">{label} · con el apoyo de</p>
-            <p className="font-serif text-lg font-bold leading-tight truncate">{s.title}</p>
-            {s.summary && <p className="text-sm text-muted-foreground truncate max-w-md">{s.summary}</p>}
+    <div className="bg-gradient-to-r from-primary/[0.07] via-secondary/40 to-transparent border-y border-primary/15" data-testid="section-sponsor-banner">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-5">
+        <div className="flex items-center justify-between gap-5 flex-wrap">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="hidden sm:block self-stretch w-1 rounded-full bg-primary" />
+            {s.logo
+              ? <img src={mediaUrl(s.logo)} alt={s.title} className="h-16 w-16 object-contain rounded-xl border border-border bg-white shadow-sm shrink-0" />
+              : <div className="h-16 w-16 rounded-xl bg-primary/10 grid place-items-center font-serif text-2xl font-bold text-primary shrink-0">{s.title?.[0]}</div>}
+            <div className="min-w-0">
+              <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-terracotta">
+                <Star className="h-3.5 w-3.5 fill-current" /> Esta sección es patrocinada por
+              </p>
+              <p className="font-serif text-xl sm:text-2xl font-bold leading-tight truncate">{s.title}</p>
+              {s.summary && <p className="text-sm text-muted-foreground truncate max-w-md">{s.summary}</p>}
+              <span className="mt-0.5 inline-block text-[10px] uppercase tracking-wider text-muted-foreground">Patrocinado · {scope}</span>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2 shrink-0 flex-wrap">
-          <SponsorCtas s={s} />
+          <div className="flex gap-2 shrink-0 flex-wrap">
+            <SponsorCtas s={s} />
+          </div>
         </div>
       </div>
     </div>
