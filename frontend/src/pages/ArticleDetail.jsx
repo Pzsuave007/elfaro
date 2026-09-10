@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Clock, User, ArrowLeft } from "lucide-react";
 import { api, mediaUrl, formatDate } from "@/lib/api";
 import { CategoryBadge, TypeTag, DemoBadge, Sources, Corrections, ArticleCard } from "@/components/shared";
+import { SponsoredBy } from "@/components/Sponsors";
 
 function Body({ text }) {
   if (!text) return null;
@@ -73,6 +74,7 @@ export default function ArticleDetail() {
 
         <Corrections corrections={item.corrections} />
         <Sources sources={item.sources} />
+        <div className="mt-10"><SponsoredBy /></div>
       </div>
 
       {item.related?.length > 0 && (

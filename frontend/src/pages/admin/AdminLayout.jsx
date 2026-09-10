@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate, Navigate } from "react-router-dom";
-import { LayoutDashboard, Newspaper, LifeBuoy, ScrollText, MapPin, Vote, Image, Users, Settings, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Newspaper, LifeBuoy, ScrollText, MapPin, Vote, Image, Users, Settings, Handshake, LogOut, ExternalLink } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ const NAV = [
   { label: "Recursos", path: "/admin/resources", icon: LifeBuoy },
   { label: "Oregon Te Informa", path: "/admin/oregon-info", icon: ScrollText },
   { label: "Conoce Oregon", path: "/admin/places", icon: MapPin },
+  { label: "Patrocinadores", path: "/admin/sponsors", icon: Handshake },
   { label: "Elecciones", path: "/admin/elections", icon: Vote },
   { label: "Media Library", path: "/admin/media", icon: Image },
   { label: "Configuración del sitio", path: "/admin/settings", icon: Settings, minRole: "editor" },

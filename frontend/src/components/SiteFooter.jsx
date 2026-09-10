@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
+import { SponsorStrip } from "@/components/Sponsors";
 
 const SECTIONS = [
   { label: "Recursos", path: "/recursos" },
@@ -7,6 +8,7 @@ const SECTIONS = [
   { label: "Conoce Oregon", path: "/conoce-oregon" },
   { label: "Historias de la comunidad", path: "/historias" },
   { label: "Elecciones 2026", path: "/elecciones" },
+  { label: "Nuestros Aliados", path: "/aliados" },
 ];
 
 const ABOUT = [
@@ -59,7 +61,10 @@ export function SiteFooter() {
             </Link>
           </div>
         </div>
-        <div className="mt-12 pt-6 border-t border-white/15 flex flex-col sm:flex-row justify-between gap-3 text-xs text-primary-foreground/60">
+        <div className="mt-12 pt-8 border-t border-white/15">
+          <SponsorStrip variant="footer" />
+        </div>
+        <div className="mt-8 pt-6 border-t border-white/15 flex flex-col sm:flex-row justify-between gap-3 text-xs text-primary-foreground/60">
           <span>© {new Date().getFullYear()} El Foro In Oregon. Todos los derechos reservados.</span>
           <span>Información neutral y verificable · Fuentes oficiales</span>
         </div>

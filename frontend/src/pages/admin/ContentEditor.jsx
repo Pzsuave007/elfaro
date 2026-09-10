@@ -200,6 +200,17 @@ export default function ContentEditor() {
         return <Input type="number" value={values[f.name] ?? ""} onChange={(e) => upd(f.name, e.target.value ? Number(e.target.value) : "")} {...common} />;
       case "checkbox":
         return <div className="flex items-center gap-2 h-10"><Switch checked={!!values[f.name]} onCheckedChange={(v) => upd(f.name, v)} {...common} /><span className="text-sm text-muted-foreground">{values[f.name] ? "Sí" : "No"}</span></div>;
+      case "select": {
+        const opts = f.options || [];
+        return (
+          <Select value={values[f.name] || ""} onValueChange={(v) => upd(f.name, v)}>
+            <SelectTrigger {...common}><SelectValue placeholder="Selecciona..." /></SelectTrigger>
+            <SelectContent>
+              {opts.map((o) => <SelectItem key={o.value || o} value={o.value || o}>{o.label || o}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        );
+      }
       case "selectConfig": {
         const opts = config[f.cfg] || [];
         return (

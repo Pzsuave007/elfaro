@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, ArrowRight, Home as HomeIcon, HeartPulse, Briefcase, GraduationCap, Users, Scale, Globe, Apple, Zap, Bus, Vote, ScrollText, Landmark } from "lucide-react";
 import { api } from "@/lib/api";
+import { SponsorStrip } from "@/components/Sponsors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArticleCard, SectionHeading, CategoryBadge, DemoBadge } from "@/components/shared";
@@ -196,6 +197,8 @@ export default function Home() {
           <Link to="/elecciones"><Button size="lg" data-testid="conocer-candidatos-btn"><Landmark className="mr-2 h-4 w-4" /> Conocer a los candidatos</Button></Link>
         </div>
       </section>
+
+      <SponsorStrip />
     </div>
   );
 }

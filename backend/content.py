@@ -16,6 +16,7 @@ COLLECTIONS = {
     "resources": db.resources,
     "oregon-info": db.oregon_info,
     "places": db.places,
+    "sponsors": db.sponsors,
 }
 
 

@@ -9,6 +9,7 @@ from auth import auth_router, seed_admin
 from storage import media_router, init_storage
 from ai import ai_router
 from content import content_router
+from sponsors import sponsors_router
 from elections import elections_router
 from seed_data import seed_demo
 
@@ -19,6 +20,7 @@ app = FastAPI(title="El Foro In Oregon API")
 
 app.include_router(auth_router)
 app.include_router(elections_router)
+app.include_router(sponsors_router)
 app.include_router(content_router)
 app.include_router(ai_router)
 app.include_router(media_router)

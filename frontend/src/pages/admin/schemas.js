@@ -4,6 +4,7 @@ export const KIND_META = {
   resources: { label: "Recurso", title: "Recursos", route: "/recursos", categoriesKey: "resource_categories", aiTarget: "what_offers" },
   "oregon-info": { label: "Explicación", title: "Oregon Te Informa", route: "/oregon-te-informa", categoriesKey: "oregon_info_categories", aiTarget: "body" },
   places: { label: "Lugar", title: "Conoce Oregon", route: "/conoce-oregon", categoriesKey: "place_categories", aiTarget: "description" },
+  sponsors: { label: "Patrocinador", title: "Patrocinadores", route: "/aliados", categoriesKey: "article_categories", aiTarget: "summary" },
 };
 
 // type: text | textarea | number | select | selectConfig | checkbox | image | gallery | tags | sources
@@ -84,5 +85,20 @@ export const SCHEMAS = {
     { name: "featured_image", label: "Imagen principal", type: "image", span: 2 },
     { name: "gallery", label: "Galería", type: "gallery", span: 2 },
     { name: "sources", label: "Fuentes", type: "sources", span: 2 },
+  ],
+  sponsors: [
+    { name: "title", label: "Nombre del patrocinador", type: "text", span: 2, required: true },
+    { name: "tier", label: "Nivel", type: "select", options: [
+      { value: "oro", label: "Oro" }, { value: "plata", label: "Plata" }, { value: "bronce", label: "Bronce" },
+    ] },
+    { name: "active", label: "Activo", type: "checkbox" },
+    { name: "logo", label: "Logo", type: "image", span: 2 },
+    { name: "summary", label: "Descripción corta", type: "textarea", span: 2 },
+    { name: "website", label: "Sitio web (URL)", type: "text", span: 2 },
+    { name: "phone", label: "Teléfono (para botón Llamar)", type: "text" },
+    { name: "address", label: "Dirección (para botón Cómo llegar)", type: "text" },
+    { name: "order", label: "Orden (menor = primero)", type: "number" },
+    { name: "start_date", label: "Fecha inicio (YYYY-MM-DD, opcional)", type: "text" },
+    { name: "end_date", label: "Fecha fin (YYYY-MM-DD, opcional)", type: "text" },
   ],
 };

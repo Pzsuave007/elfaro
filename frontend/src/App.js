@@ -31,6 +31,7 @@ import CandidateEditor from "@/pages/admin/CandidateEditor";
 import MediaLibrary from "@/pages/admin/MediaLibrary";
 import UsersAdmin from "@/pages/admin/UsersAdmin";
 import SiteSettings from "@/pages/admin/SiteSettings";
+import Aliados from "@/pages/Aliados";
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
             <Route path="/oregon-te-informa/:slug" element={<OregonInfoDetail />} />
             <Route path="/conoce-oregon" element={<ConoceOregon />} />
             <Route path="/conoce-oregon/:slug" element={<PlaceDetail />} />
+            <Route path="/aliados" element={<Aliados />} />
             <Route path="/elecciones" element={<Elecciones />} />
             <Route path="/elecciones/carrera/:raceId" element={<RaceCompare />} />
             <Route path="/elecciones/candidato/:id" element={<CandidateDetail />} />
