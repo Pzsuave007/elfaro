@@ -199,4 +199,4 @@ export function SectionSponsorBanner({ section, subsection = "" }) {
   );
 }
 
-export { TIER_LABEL };
+export { TIER_LABEL, SECTION_NAME };

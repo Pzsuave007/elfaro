@@ -1,11 +1,90 @@
-import { useState } from "react";
-import { Phone, MapPin, ExternalLink, Handshake, Loader2, CheckCircle2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Phone, MapPin, ExternalLink, Handshake, Loader2, CheckCircle2, Check, Star } from "lucide-react";
 import { api, mediaUrl } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useSponsors, trackSponsorClick, TIER_LABEL } from "@/components/Sponsors";
+import { useSponsors, trackSponsorClick, TIER_LABEL, SECTION_NAME } from "@/components/Sponsors";
+
+const PACKAGES = [
+  {
+    id: "oro", name: "Oro — Patrocinador de Sección", shortName: "Oro (Patrocinador de Sección)",
+    price: "$150–250", period: "/mes", highlight: true,
+    tagline: "El lugar más exclusivo · solo 4 disponibles en todo el sitio",
+    features: [
+      "Banner destacado ARRIBA de una sección completa",
+      "Etiqueta \"Patrocinador oficial\" de tu sección",
+      "Tu logo en la portada y el pie de página",
+      "Anuncio en la barra lateral de los artículos",
+      "Botones de Llamar y Cómo llegar",
+      "Reporte mensual de llamadas y clics",
+    ],
+  },
+  {
+    id: "plata", name: "Plata — Patrocinador de Sub-sección", shortName: "Plata (Sub-sección)",
+    price: "$60–120", period: "/mes",
+    tagline: "Llega a un público específico (ej. Vivienda, Salud)",
+    features: [
+      "Banner arriba de una categoría específica",
+      "Tu logo en la portada y el pie de página",
+      "Anuncio en la barra lateral",
+      "Botones de Llamar y Cómo llegar",
+      "Ficha completa en la página de Aliados",
+    ],
+  },
+  {
+    id: "bronce", name: "Bronce — Presencia", shortName: "Bronce (Presencia)",
+    price: "$25–50", period: "/mes",
+    tagline: "Apoya a la comunidad y date a conocer",
+    features: [
+      "Tu logo en la portada y el pie de página",
+      "Aparición rotativa en el anuncio lateral",
+      "Ficha con botones de contacto en Aliados",
+    ],
+  },
+];
+
+function Packages({ onSelect }) {
+  return (
+    <div className="mt-16" data-testid="sponsor-packages">
+      <div className="flex items-end justify-between flex-wrap gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-terracotta mb-2">Paquetes de patrocinio</p>
+          <h2 className="font-serif text-3xl font-bold">Elige cómo apoyar y hacer crecer tu negocio</h2>
+        </div>
+        <span className="rounded-full bg-terracotta/10 text-terracotta text-xs font-semibold px-3 py-1.5">Precios de lanzamiento · Aliado Fundador</span>
+      </div>
+      <div className="mt-8 grid md:grid-cols-3 gap-6 items-stretch">
+        {PACKAGES.map((p) => (
+          <div key={p.id} data-testid={`package-${p.id}`}
+            className={`relative rounded-2xl border p-6 flex flex-col ${p.highlight ? "border-primary shadow-lg ring-1 ring-primary/20 bg-card" : "border-border bg-card"}`}>
+            {p.highlight && (
+              <span className="absolute -top-3 left-6 flex items-center gap-1 rounded-full bg-primary text-primary-foreground text-[11px] font-bold uppercase tracking-wider px-3 py-1">
+                <Star className="h-3 w-3 fill-current" /> Más exclusivo · solo 4
+              </span>
+            )}
+            <h3 className="font-serif text-xl font-bold">{p.name}</h3>
+            <p className="text-sm text-muted-foreground mt-1">{p.tagline}</p>
+            <div className="mt-4 flex items-baseline gap-1">
+              <span className="font-serif text-3xl font-bold">{p.price}</span>
+              <span className="text-sm text-muted-foreground">{p.period}</span>
+            </div>
+            <ul className="mt-4 space-y-2 flex-1">
+              {p.features.map((feat, i) => (
+                <li key={i} className="flex gap-2 text-sm text-foreground/80"><Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" /> {feat}</li>
+              ))}
+            </ul>
+            <Button className="mt-6 w-full" variant={p.highlight ? "default" : "outline"} onClick={() => onSelect(p.shortName)} data-testid={`package-select-${p.id}`}>
+              Quiero este paquete
+            </Button>
+          </div>
+        ))}
+      </div>
+      <p className="mt-4 text-xs text-muted-foreground">Precios mensuales en dólares. Descuento por pago anual (paga 10 meses, lleva 12). Pueden variar según la sección y la temporada.</p>
+    </div>
+  );
+}
 
 function SponsorCard({ s }) {
   const dirUrl = s.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.address)}` : null;
@@ -17,6 +96,11 @@ function SponsorCard({ s }) {
         <div>
           <h3 className="font-serif text-lg font-bold leading-tight">{s.title}</h3>
           <span className="text-[11px] font-semibold uppercase tracking-wider text-terracotta">Aliado {TIER_LABEL[s.tier] || ""}</span>
+          {s.feature_section && s.feature_section !== "none" && SECTION_NAME[s.feature_section] && (
+            <span className="mt-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary" data-testid={`official-badge-${s.id}`}>
+              <Star className="h-3 w-3 fill-current" /> Patrocinador oficial de {SECTION_NAME[s.feature_section]}
+            </span>
+          )}
         </div>
       </div>
       {s.summary && <p className="text-sm text-muted-foreground mb-4 flex-1">{s.summary}</p>}
@@ -44,10 +128,11 @@ function SponsorCard({ s }) {
   );
 }
 
-function AliadoForm() {
+function AliadoForm({ presetMessage = "" }) {
   const [f, setF] = useState({ name: "", business: "", email: "", phone: "", message: "" });
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  useEffect(() => { if (presetMessage) setF((x) => ({ ...x, message: presetMessage })); }, [presetMessage]);
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true);
@@ -83,6 +168,11 @@ function AliadoForm() {
 
 export default function Aliados() {
   const items = useSponsors();
+  const [preset, setPreset] = useState("");
+  const selectPkg = (name) => {
+    setPreset(`Me interesa el paquete ${name}. `);
+    document.getElementById("aliado-form-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12" data-testid="aliados-page">
       <p className="text-xs font-semibold uppercase tracking-[0.15em] text-terracotta mb-3">Nuestros Aliados</p>
@@ -95,17 +185,19 @@ export default function Aliados() {
         </div>
       )}
 
-      <div className="mt-16 grid lg:grid-cols-2 gap-8 items-start">
+      <Packages onSelect={selectPkg} />
+
+      <div id="aliado-form-section" className="mt-16 grid lg:grid-cols-2 gap-8 items-start scroll-mt-24">
         <div>
           <h2 className="font-serif text-2xl font-bold">Sé nuestro aliado</h2>
-          <p className="text-muted-foreground mt-2">Llega a miles de familias latinas en Oregon y apoya un medio comunitario confiable. Déjanos tus datos y te enviamos los paquetes de patrocinio (Oro, Plata y Bronce).</p>
+          <p className="text-muted-foreground mt-2">Llega a miles de familias latinas en Oregon y apoya un medio comunitario confiable. Déjanos tus datos y te enviamos los detalles de los paquetes (Oro, Plata y Bronce).</p>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>• Tu logo en la portada, el pie de página y la página de Aliados.</li>
             <li>• Botones de "Llamar" y "Cómo llegar" directo a tu negocio.</li>
             <li>• Presencia en un medio no partidista y de confianza.</li>
           </ul>
         </div>
-        <AliadoForm />
+        <AliadoForm presetMessage={preset} />
       </div>
     </div>
   );
