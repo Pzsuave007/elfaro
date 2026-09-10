@@ -1,0 +1,34 @@
+{
+  "summary": "Verified fix for missing images bug via local disk MEDIA_DIR store. Backend: created /app/backend/tests/test_media_and_public.py (9 tests, all passing) covering public API endpoints, media serving from disk, admin upload persistence, and frontend title cleanup. Frontend: Playwright verified home/historias/conoce-oregon render /api/media/ images with 0 broken; article detail loads featured image; admin login works; browser tab title is 'El Foro In Oregon' with no console errors. NOTE: Frontend dev server was serving STALE public/index.html (still showed 'A product of emergent.sh' + posthog scripts) until I restarted supervisorctl frontend — the source file was correct but not picked up. After restart, served HTML matches the cleaned index.html.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_media_and_public.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "None required for the reported bug. Media local-disk store is working end-to-end (GET /api/media/file/{path} serves 200 with correct image content-type; disk files at /app/backend/media_store are read directly without Emergent object storage). Admin uploads are persisted to disk. Tab title is correct after frontend restart."
+  ],
+  "critical_code_review_comments": [
+    "storage.py serve_file requires a db.media record before serving a disk file — this is fine but means if the DB and media_store get out of sync (e.g. copying files without inserting media docs on cPanel deploy), those files return 404. Consider a fallback for anonymous public reads that only checks disk existence with a safe path check, or document the requirement that db.media docs must be exported/imported together with the files.",
+    "put_object swallows Emergent errors when MEDIA_DIR is set (returns local-only stub with just path+size). This is correct for prod but silently hides Emergent outages in preview — consider logging a warning.",
+    "content.py has a catch-all /api/public/{kind} route that returns 404 'Tipo de contenido no válido' for unknown kinds — this shadowed any future /api/public/site-settings if added. Actual settings endpoint is /api/site-settings (unprefixed public). Consider renaming for consistency, but not blocking."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_media_and_public.py (new)"
+  ],
+  "success_rate": {"backend": "100% (9/9)", "frontend": "100% (all public routes render, admin login OK, images from /api/media/ serve correctly, tab title clean, 0 console errors)"},
+  "test_credentials": "admin@elforo.org / ForoOregon2026 (verified working via /admin/login → /admin)",
+  "seed_data_creation": "One TEST_ media file uploaded via admin API to verify disk persistence (path: elforo-oregon/uploads/{userId}/{uuid}.webp). Safe to leave.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Local-disk media store is fully working. If frontend index.html or other public/ assets are changed, remember dev server may serve stale HTML until `sudo supervisorctl restart frontend` (I had to restart to pick up the cleaned index.html). All 47 pre-copied media files at /app/backend/media_store are being served via /api/media/file/{path} without hitting Emergent object storage.",
+  "rca of the issue": "Original bug: images missing after cPanel deploy because media was only in Emergent Object Storage (namespaced to EMERGENT_LLM_KEY, unavailable on user's server). Fix in storage.py added MEDIA_DIR env-controlled local disk store: put_object writes to disk first (durable), get_object reads disk first then falls back to Emergent. Preview env now has MEDIA_DIR=/app/backend/media_store with all 47 files copied — simulated production works. Verified GET /api/media/file/{path} returns 200 with correct image bytes from disk, and admin uploads persist to disk immediately."
+}

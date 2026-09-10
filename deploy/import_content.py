@@ -6,16 +6,17 @@ Uso (en el servidor, dentro del venv del backend):
     source venv/bin/activate
     python /home/elfaroinoregon/repo/deploy/import_content.py
 """
-import os, json, glob
+import os, json
 from pathlib import Path
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
-# Carga el .env de producción (mismo dir que el backend en /opt/USER/backend)
-load_dotenv(Path(__file__).resolve().parent.parent / "backend" / ".env")  # fallback
-# En prod el backend corre desde /opt/USER/backend con su .env; si corres desde ahí, ya está cargado.
+# Carga el .env de producción. Ejecuta este script DESDE /opt/USER/backend
+# (ahí está el .env con MONGO_URL, DB_NAME y MEDIA_DIR de producción).
+load_dotenv()  # .env del directorio actual
 if not os.environ.get("MONGO_URL"):
-    load_dotenv()
+    # fallback: intenta el .env junto a este script
+    load_dotenv(Path(__file__).resolve().parent / ".env")
 
 EXPORT_DIR = Path(__file__).resolve().parent / "content_export"
 
@@ -49,6 +50,24 @@ def main():
             db[coll].create_index("status")
         total[coll] = n
         print(f"  {coll:12} importados/actualizados: {n}")
+
+    # Copia los archivos de imagen al almacenamiento local del servidor (MEDIA_DIR)
+    media_dir = os.environ.get("MEDIA_DIR")
+    src = EXPORT_DIR / "media_files"
+    if media_dir and src.exists():
+        import shutil
+        copied = 0
+        for f in src.rglob("*"):
+            if f.is_file():
+                rel = f.relative_to(src)
+                dest = Path(media_dir) / rel
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(f, dest)
+                copied += 1
+        print(f"  imágenes copiadas a {media_dir}: {copied}")
+    elif not media_dir:
+        print("  (MEDIA_DIR no definido; me salto la copia de imágenes a disco)")
+
     print("Listo:", total)
 
 

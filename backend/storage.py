@@ -14,6 +14,22 @@ STORAGE_BASE = (os.environ.get("INTEGRATION_PROXY_URL") or "").strip() or "https
 STORAGE_URL = STORAGE_BASE.rstrip("/") + "/objstore/api/v1/storage"
 EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
 APP_NAME = "elforo-oregon"
+# Almacenamiento local en disco (para producción). Si está definido, las imágenes se
+# guardan y se sirven desde disco, sin depender del almacenamiento de Emergent ni de la clave.
+MEDIA_DIR = (os.environ.get("MEDIA_DIR") or "").strip() or None
+
+
+def _local_file(path):
+    return os.path.join(MEDIA_DIR, path) if MEDIA_DIR else None
+
+
+def _save_local(path, data):
+    if not MEDIA_DIR:
+        return
+    fp = _local_file(path)
+    os.makedirs(os.path.dirname(fp), exist_ok=True)
+    with open(fp, "wb") as f:
+        f.write(data)
 
 storage_key = None
 
@@ -37,31 +53,45 @@ def init_storage(force: bool = False):
 
 
 def put_object(path: str, data: bytes, content_type: str) -> dict:
-    key = init_storage()
-    resp = requests.put(
-        f"{STORAGE_URL}/objects/{path}",
-        headers={"X-Storage-Key": key, "Content-Type": content_type},
-        data=data, timeout=120,
-    )
-    if resp.status_code == 404:
-        key = init_storage(force=True)
+    _save_local(path, data)  # copia durable en disco (producción)
+    try:
+        key = init_storage()
         resp = requests.put(
             f"{STORAGE_URL}/objects/{path}",
             headers={"X-Storage-Key": key, "Content-Type": content_type},
             data=data, timeout=120,
         )
-    resp.raise_for_status()
-    return resp.json()
+        if resp.status_code == 404:
+            key = init_storage(force=True)
+            resp = requests.put(
+                f"{STORAGE_URL}/objects/{path}",
+                headers={"X-Storage-Key": key, "Content-Type": content_type},
+                data=data, timeout=120,
+            )
+        resp.raise_for_status()
+        return resp.json()
+    except Exception:
+        if MEDIA_DIR:
+            return {"path": path, "size": len(data)}  # modo solo-disco (prod sin almacenamiento Emergent)
+        raise
 
 
 def get_object(path: str):
+    lf = _local_file(path)
+    if lf and os.path.exists(lf):
+        with open(lf, "rb") as f:
+            data = f.read()
+        ext = path.rsplit(".", 1)[-1].lower() if "." in path else ""
+        return data, MIME_TYPES.get(ext, "application/octet-stream")
     key = init_storage()
     resp = requests.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": key}, timeout=60)
     if resp.status_code == 404:
         key = init_storage(force=True)
         resp = requests.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": key}, timeout=60)
     resp.raise_for_status()
-    return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
+    data = resp.content
+    _save_local(path, data)  # cachea en disco para próximas veces
+    return data, resp.headers.get("Content-Type", "application/octet-stream")
 
 
 def compress_image(data: bytes, max_width: int = 1600, quality: int = 82):

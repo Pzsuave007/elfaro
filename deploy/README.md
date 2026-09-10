@@ -38,6 +38,35 @@ cd /home/USER/repo && git pull && bash deploy.sh
 
 ---
 
+## 🖼️ Imágenes (se guardan en el disco de tu servidor)
+Las imágenes ahora se guardan y se sirven desde el **disco local** del servidor (variable
+`MEDIA_DIR`), así NO dependen del almacenamiento de Emergent ni de la clave. Los archivos
+reales viajan en el repo en `deploy/content_export/media_files/` y el import los copia a
+`MEDIA_DIR`.
+
+### Si YA desplegaste y las imágenes salían en blanco, arréglalo así:
+```bash
+# 1) trae los cambios y el fix
+cd /home/elfaroinoregon/repo && git pull && bash deploy.sh
+
+# 2) AÑADE MEDIA_DIR a tu .env de producción (solo la primera vez)
+grep -q '^MEDIA_DIR=' /opt/elfaroinoregon/backend/.env || \
+  printf 'MEDIA_DIR=/opt/elfaroinoregon/backend/media_store\n' >> /opt/elfaroinoregon/backend/.env
+
+# 3) reinicia el backend para tomar MEDIA_DIR
+cd /opt/elfaroinoregon/backend && source venv/bin/activate
+PORT=8008 CPANEL_USER=elfaroinoregon bash /home/elfaroinoregon/repo/deploy/restart.sh
+
+# 4) importa contenido + copia las imágenes al disco
+cd /opt/elfaroinoregon/backend && source venv/bin/activate
+python /home/elfaroinoregon/repo/deploy/import_content.py
+```
+Recarga el sitio → las imágenes ya deben verse. (El import hace **upsert por id** y copia
+las 47 imágenes a `MEDIA_DIR`; es seguro repetirlo.)
+
+⚠️ Importante: los registros en la base (`media`) y los archivos en `MEDIA_DIR` deben ir
+juntos — por eso el import hace ambas cosas. No borres uno sin el otro.
+
 ## ⚠️ Notas específicas de ESTA app
 - **Pillow** es obligatorio (comprime imágenes a WebP). Ya está en `requirements.prod.txt`.
 - **emergentintegrations** va SIN pin (usa la última) porque la app usa búsqueda web de
