@@ -46,11 +46,12 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup():
     await seed_admin()
-    try:
-        await seed_demo()
-        logger.info("Demo content ready")
-    except Exception as e:
-        logger.error(f"Seed demo failed: {e}")
+    if os.environ.get("SEED_DEMO", "true").lower() == "true":
+        try:
+            await seed_demo()
+            logger.info("Demo content ready")
+        except Exception as e:
+            logger.error(f"Seed demo failed: {e}")
     for coll in [db.articles, db.resources, db.oregon_info, db.places]:
         await coll.create_index("slug")
         await coll.create_index("status")
