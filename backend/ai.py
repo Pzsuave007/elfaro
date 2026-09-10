@@ -303,11 +303,11 @@ async def generate_post(req: GenerateRequest, user: dict = Depends(get_current_u
 
 
 STYLE_PREFIX = {
-    "comic": ("Modern digital comic book / pop-art illustration. Bold, clean, crisp black ink outlines of even weight; "
-              "vibrant saturated flat colors; prominent Ben-Day halftone dot shading and halftone gradients in skies and "
-              "shadows; smooth cel shading; sharp high-quality vector-like linework; well-proportioned faces and correct, "
-              "clean anatomy; dynamic polished composition. Professional pop-art comic look. NOT painterly, NOT faded, "
-              "NOT sketchy, no cross-hatching. A single clear scene. "
+    "comic": ("Modern digital comic book illustration. Bold, clean, crisp black ink outlines of even weight; FULL COLOR "
+              "with a natural, realistic color palette and true-to-life skin tones and natural lighting; subtle Ben-Day "
+              "halftone dot shading; smooth cel shading; sharp high-quality vector-like linework; well-proportioned faces "
+              "and correct, clean anatomy; dynamic polished composition. Professional comic-book look. NOT oversaturated, "
+              "NOT painterly, NOT faded, NOT sketchy, no cross-hatching. A single clear scene. "
               "NO text, NO words, NO speech bubbles, NO captions, no logos, no watermarks. "),
     "illustration": ("Editorial illustration, warm flat vector style, clean shapes, soft harmonious palette, subtle "
                      "texture, culturally relevant, no text, no words, no logos, no watermarks. "),
