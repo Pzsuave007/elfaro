@@ -1,0 +1,31 @@
+{
+  "summary": "Health/uptime smoke test after transient service restart. Site is UP. All public API endpoints return 200 with data, all main public routes render 200, admin login succeeds and dashboard loads with 'Configuración del sitio' navigation visible. Resource list + detail navigation works. No 5xx errors observed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verifications": {
+    "public_endpoints_200": ["/api/public/resources (6 items)", "/api/public/articles", "/api/public/oregon-info", "/api/public/places", "/api/site-settings"],
+    "public_routes_200": ["/", "/recursos", "/oregon-te-informa", "/conoce-oregon", "/historias", "/admin/login"],
+    "hero_section_testid_present": true,
+    "resource_cards_count": 6,
+    "resource_detail_loads": true,
+    "admin_login": "Success (admin@elforo.org) — redirected to /admin dashboard; 'Configuración del sitio' nav visible",
+    "browser_console_errors": "None blocking"
+  },
+  "notes_for_main_agent": [
+    "The recently-added resource-detail header image (data-testid=resource-image) is CONDITIONAL on the resource having a featured_image. Currently NONE of the 6 seeded resources have featured_image set, so the testid is not rendered on any live resource. This is expected code behavior, not a bug — but if the feature needs a live demo, upload a featured image for at least one resource via admin (Media Library → Recursos) to verify end-to-end rendering."
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "admin@elforo.org / ForoOregon2026 (works)",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Site is healthy. All endpoints and public routes 200. Admin auth works. If verifying resource-image feature, seed a resource with featured_image first."
+}
