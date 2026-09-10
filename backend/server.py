@@ -24,6 +24,11 @@ app.include_router(ai_router)
 app.include_router(media_router)
 
 
+@app.get("/api/")
+async def api_root():
+    return {"status": "ok", "service": "El Foro In Oregon"}
+
+
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "service": "El Foro In Oregon"}
