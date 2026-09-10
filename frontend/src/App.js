@@ -32,7 +32,7 @@ import MediaLibrary from "@/pages/admin/MediaLibrary";
 import UsersAdmin from "@/pages/admin/UsersAdmin";
 import SiteSettings from "@/pages/admin/SiteSettings";
 import Aliados from "@/pages/Aliados";
-
+import Patrocina from "@/pages/Patrocina";
 function App() {
   return (
     <AuthProvider>
@@ -50,6 +50,7 @@ function App() {
             <Route path="/conoce-oregon" element={<ConoceOregon />} />
             <Route path="/conoce-oregon/:slug" element={<PlaceDetail />} />
             <Route path="/aliados" element={<Aliados />} />
+            <Route path="/patrocina" element={<Patrocina />} />
             <Route path="/elecciones" element={<Elecciones />} />
             <Route path="/elecciones/carrera/:raceId" element={<RaceCompare />} />
             <Route path="/elecciones/candidato/:id" element={<CandidateDetail />} />

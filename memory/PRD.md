@@ -47,6 +47,8 @@ Plataforma web informativa, no partidista y en español para la comunidad hispan
 
 - ✅ Paquetes de patrocinio + badge oficial (2026-06): Aliados.jsx ahora tiene sección "Paquetes de patrocinio" (Packages) con 3 tarjetas Oro/Plata/Bronce (precios de lanzamiento, beneficios, Oro resaltado "Más exclusivo · solo 4"). Botón "Quiero este paquete" prellena el mensaje del formulario (presetMessage) y hace scroll (#aliado-form-section). SponsorCard muestra badge "Patrocinador oficial de [Sección]" (Star) cuando feature_section está definido. SECTION_NAME exportado desde Sponsors.jsx. Verificado por screenshot + interacción (preset msg ok).
 
+- ✅ Aliados por niveles + página /patrocina separada (2026-06): Aliados.jsx ahora agrupa patrocinadores por tier (Oro destacado con ring/logo grande + badge oficial → Plata → Bronce; untiered→bronce) y termina con banner CTA → /patrocina. Nueva página Patrocina.jsx (ruta /patrocina) con los Paquetes (Oro/Plata/Bronce, sin precios) + formulario de contacto (presetMessage al elegir paquete). Banner de sección más visual (banda con degradado, acento, logo grande, "Esta sección es patrocinada por" + Star + "Patrocinado · [scope]"). Enlace "Sé nuestro aliado" agregado en footer. Verificado por screenshot (/aliados 3 niveles + CTA, /patrocina paquetes+form con preset). Modelo confirmado: solo Llamar/Sitio web/Cómo llegar (sin directorio).
+
 ## Backlog / Remaining (P1/P2)
 - P1: Rich text editor (currently textarea), scheduled auto-publish job, SEO meta tags injection + sitemap.xml/robots.txt served, ballot measures.
 - P2: Newsletter, WhatsApp, push, member accounts, saved articles, English version, "Who Represents Me" + ZIP lookup, PWA. (Architecture ready.)

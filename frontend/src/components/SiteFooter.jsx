@@ -9,6 +9,7 @@ const SECTIONS = [
   { label: "Historias de la comunidad", path: "/historias" },
   { label: "Elecciones 2026", path: "/elecciones" },
   { label: "Nuestros Aliados", path: "/aliados" },
+  { label: "Sé nuestro aliado", path: "/patrocina" },
 ];
 
 const ABOUT = [
