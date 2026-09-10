@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Clock, User, ArrowLeft } from "lucide-react";
 import { api, mediaUrl, formatDate } from "@/lib/api";
 import { CategoryBadge, TypeTag, DemoBadge, Sources, Corrections, ArticleCard } from "@/components/shared";
-import { SponsoredBy } from "@/components/Sponsors";
+import { SponsorAd } from "@/components/Sponsors";
 
 function Body({ text }) {
   if (!text) return null;
@@ -31,7 +31,7 @@ export default function ArticleDetail() {
 
   return (
     <article className="pb-16">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-10">
         <Link to="/historias" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6" data-testid="back-link">
           <ArrowLeft className="h-4 w-4" /> Historias de la comunidad
         </Link>
@@ -51,30 +51,32 @@ export default function ArticleDetail() {
       </div>
 
       {item.featured_image && (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 my-8">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 my-8">
           <img src={mediaUrl(item.featured_image)} alt={item.title} className="w-full rounded-xl aspect-[16/9] object-cover" />
         </div>
       )}
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        {isOpinion && (
-          <div className="mb-6 rounded-lg border-l-4 border-terracotta bg-terracotta/5 p-4 text-sm">
-            Este es contenido de <strong>{item.content_type}</strong> y refleja el punto de vista de su autor, no una noticia informativa.
-          </div>
-        )}
-        <Body text={item.body} />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="lg:col-span-2 min-w-0">
+          {isOpinion && (
+            <div className="mb-6 rounded-lg border-l-4 border-terracotta bg-terracotta/5 p-4 text-sm">
+              Este es contenido de <strong>{item.content_type}</strong> y refleja el punto de vista de su autor, no una noticia informativa.
+            </div>
+          )}
+          <Body text={item.body} />
 
-        {item.tags?.length > 0 && (
-          <div className="mt-8 flex flex-wrap gap-2" data-testid="article-tags">
-            {item.tags.map((t) => (
-              <Link key={t} to={`/historias?q=${encodeURIComponent(t)}`} className="rounded-full bg-secondary px-3 py-1 text-xs text-foreground/70 hover:bg-accent">#{t}</Link>
-            ))}
-          </div>
-        )}
+          {item.tags?.length > 0 && (
+            <div className="mt-8 flex flex-wrap gap-2" data-testid="article-tags">
+              {item.tags.map((t) => (
+                <Link key={t} to={`/historias?q=${encodeURIComponent(t)}`} className="rounded-full bg-secondary px-3 py-1 text-xs text-foreground/70 hover:bg-accent">#{t}</Link>
+              ))}
+            </div>
+          )}
 
-        <Corrections corrections={item.corrections} />
-        <Sources sources={item.sources} />
-        <div className="mt-10"><SponsoredBy /></div>
+          <Corrections corrections={item.corrections} />
+          <Sources sources={item.sources} />
+        </div>
+        <aside><SponsorAd /></aside>
       </div>
 
       {item.related?.length > 0 && (

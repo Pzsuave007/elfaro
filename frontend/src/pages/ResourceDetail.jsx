@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Phone, Mail, Globe, MapPin, ExternalLink, ListChecks, FileText, ShieldCheck } from "lucide-react";
 import { api, mediaUrl, formatDate, track } from "@/lib/api";
 import { CategoryBadge, DemoBadge, Sources } from "@/components/shared";
+import { SponsorAd } from "@/components/Sponsors";
 import { Button } from "@/components/ui/button";
 
 function Row({ icon: Icon, label, value }) {
@@ -56,27 +57,30 @@ export default function ResourceDetail() {
           <Sources sources={item.sources} />
         </div>
 
-        <aside className="space-y-4">
-          <div className="rounded-xl border border-border bg-card p-5 sticky top-20">
-            <h3 className="font-serif font-bold mb-3">Información de contacto</h3>
-            <Row icon={Phone} label="Teléfono" value={item.phone} />
-            <Row icon={Mail} label="Email" value={item.email} />
-            <Row icon={Globe} label="Website" value={item.website} />
-            <Row icon={MapPin} label="Dirección" value={[item.address, item.city, item.county, item.state].filter(Boolean).join(", ")} />
-            <Row icon={Globe} label="Idiomas" value={item.languages} />
-            {item.last_verified && <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> Verificado el {formatDate(item.last_verified)}</p>}
-            <div className="mt-4 space-y-2">
-              {item.official_source && (
-                <a href={item.official_source} target="_blank" rel="noopener noreferrer" onClick={() => track("resource_apply", { label: item.title })} className="block">
-                  <Button className="w-full" data-testid="apply-btn">Solicitar ayuda</Button>
-                </a>
-              )}
-              {item.official_source && (
-                <a href={item.official_source} target="_blank" rel="noopener noreferrer" onClick={() => track("official_link", { label: item.title })} className="block">
-                  <Button variant="outline" className="w-full" data-testid="official-source-btn"><ExternalLink className="mr-2 h-4 w-4" /> Visitar fuente oficial</Button>
-                </a>
-              )}
+        <aside>
+          <div className="sticky top-20 space-y-4">
+            <div className="rounded-xl border border-border bg-card p-5">
+              <h3 className="font-serif font-bold mb-3">Información de contacto</h3>
+              <Row icon={Phone} label="Teléfono" value={item.phone} />
+              <Row icon={Mail} label="Email" value={item.email} />
+              <Row icon={Globe} label="Website" value={item.website} />
+              <Row icon={MapPin} label="Dirección" value={[item.address, item.city, item.county, item.state].filter(Boolean).join(", ")} />
+              <Row icon={Globe} label="Idiomas" value={item.languages} />
+              {item.last_verified && <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> Verificado el {formatDate(item.last_verified)}</p>}
+              <div className="mt-4 space-y-2">
+                {item.official_source && (
+                  <a href={item.official_source} target="_blank" rel="noopener noreferrer" onClick={() => track("resource_apply", { label: item.title })} className="block">
+                    <Button className="w-full" data-testid="apply-btn">Solicitar ayuda</Button>
+                  </a>
+                )}
+                {item.official_source && (
+                  <a href={item.official_source} target="_blank" rel="noopener noreferrer" onClick={() => track("official_link", { label: item.title })} className="block">
+                    <Button variant="outline" className="w-full" data-testid="official-source-btn"><ExternalLink className="mr-2 h-4 w-4" /> Visitar fuente oficial</Button>
+                  </a>
+                )}
+              </div>
             </div>
+            <SponsorAd sticky={false} />
           </div>
         </aside>
       </div>

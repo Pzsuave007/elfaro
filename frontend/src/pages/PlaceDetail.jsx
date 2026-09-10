@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, MapPin, Clock, DollarSign, Accessibility, Car, ExternalLink } from "lucide-react";
 import { api, mediaUrl } from "@/lib/api";
 import { CategoryBadge, DemoBadge, Sources } from "@/components/shared";
+import { SponsorAd } from "@/components/Sponsors";
 import { Button } from "@/components/ui/button";
 
 function Info({ icon: Icon, label, value }) {
@@ -67,17 +68,20 @@ export default function PlaceDetail() {
           <Sources sources={item.sources} />
         </div>
         <aside>
-          <div className="rounded-xl border border-border bg-card p-6 space-y-4 sticky top-20">
-            <Info icon={MapPin} label="Ubicación" value={item.location || [item.city, item.county].filter(Boolean).join(", ")} />
-            <Info icon={Clock} label="Horarios" value={item.hours} />
-            <Info icon={DollarSign} label="Costo" value={item.cost} />
-            <Info icon={Accessibility} label="Accesibilidad" value={item.accessibility} />
-            <Info icon={Car} label="Estacionamiento" value={item.parking} />
-            {item.official_source && (
-              <a href={item.official_source} target="_blank" rel="noopener noreferrer" className="block pt-2">
-                <Button variant="outline" className="w-full" data-testid="official-source-btn"><ExternalLink className="mr-2 h-4 w-4" /> Sitio oficial</Button>
-              </a>
-            )}
+          <div className="sticky top-20 space-y-4">
+            <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+              <Info icon={MapPin} label="Ubicación" value={item.location || [item.city, item.county].filter(Boolean).join(", ")} />
+              <Info icon={Clock} label="Horarios" value={item.hours} />
+              <Info icon={DollarSign} label="Costo" value={item.cost} />
+              <Info icon={Accessibility} label="Accesibilidad" value={item.accessibility} />
+              <Info icon={Car} label="Estacionamiento" value={item.parking} />
+              {item.official_source && (
+                <a href={item.official_source} target="_blank" rel="noopener noreferrer" className="block pt-2">
+                  <Button variant="outline" className="w-full" data-testid="official-source-btn"><ExternalLink className="mr-2 h-4 w-4" /> Sitio oficial</Button>
+                </a>
+              )}
+            </div>
+            <SponsorAd sticky={false} />
           </div>
         </aside>
       </div>

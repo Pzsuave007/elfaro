@@ -26,11 +26,18 @@ def _active_now(s: dict) -> bool:
     return True
 
 
+def _order_val(s: dict) -> float:
+    try:
+        return float(s.get("order") or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 @sponsors_router.get("/public/sponsors")
 async def public_sponsors():
     docs = await db.sponsors.find({}).to_list(500)
     docs = [_clean(d) for d in docs if _active_now(d)]
-    docs.sort(key=lambda s: (TIER_RANK.get((s.get("tier") or "bronce").lower(), 3), s.get("order", 0), s.get("title", "")))
+    docs.sort(key=lambda s: (TIER_RANK.get((s.get("tier") or "bronce").lower(), 3), _order_val(s), s.get("title", "")))
     return {"items": docs}
 
 

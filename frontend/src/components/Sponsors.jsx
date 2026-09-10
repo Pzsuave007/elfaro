@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { Phone, MapPin, ExternalLink, Handshake } from "lucide-react";
 import { api, mediaUrl } from "@/lib/api";
 
 const TIER_LABEL = { oro: "Oro", plata: "Plata", bronce: "Bronce" };
@@ -57,6 +58,65 @@ export function SponsoredBy() {
           {s.summary && <p className="text-sm text-muted-foreground line-clamp-2">{s.summary}</p>}
         </div>
       </Link>
+    </div>
+  );
+}
+
+// Anuncio lateral flotante "Apoya negocios locales" (barra sticky en páginas de detalle).
+// Rota entre patrocinadores activos; si no hay, muestra un CTA para conseguir aliados.
+export function SponsorAd({ sticky = true }) {
+  const items = useSponsors();
+  const s = useMemo(
+    () => (items && items.length ? items[Math.floor(Math.random() * items.length)] : null),
+    [items]
+  );
+  if (items === null) return null; // cargando
+  const dirUrl = s?.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.address)}` : null;
+  return (
+    <div className={sticky ? "sticky top-20" : ""} data-testid="sponsor-ad">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-terracotta mb-3">Apoya negocios locales</p>
+      {s ? (
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            {s.logo
+              ? <img src={mediaUrl(s.logo)} alt={s.title} className="h-14 w-14 object-contain rounded-lg border border-border bg-white" />
+              : <div className="h-14 w-14 rounded-lg bg-primary/10 grid place-items-center font-serif text-lg font-bold text-primary">{s.title?.[0]}</div>}
+            <div className="min-w-0">
+              <p className="font-serif font-bold leading-tight truncate">{s.title}</p>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-terracotta">Aliado {TIER_LABEL[s.tier] || ""}</span>
+            </div>
+          </div>
+          {s.summary && <p className="text-sm text-muted-foreground mb-4 line-clamp-4">{s.summary}</p>}
+          <div className="space-y-2">
+            {s.phone && (
+              <a href={`tel:${s.phone}`} onClick={() => trackSponsorClick(s.id, "call")} data-testid="sponsor-ad-call"
+                className="flex items-center justify-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-2 text-sm font-medium hover:opacity-90">
+                <Phone className="h-4 w-4" /> Llamar
+              </a>
+            )}
+            {dirUrl && (
+              <a href={dirUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackSponsorClick(s.id, "directions")} data-testid="sponsor-ad-directions"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-accent">
+                <MapPin className="h-4 w-4" /> Cómo llegar
+              </a>
+            )}
+            {s.website && (
+              <a href={s.website} target="_blank" rel="noopener noreferrer" onClick={() => trackSponsorClick(s.id, "website")} data-testid="sponsor-ad-web"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-accent">
+                <ExternalLink className="h-4 w-4" /> Sitio web
+              </a>
+            )}
+          </div>
+          <Link to="/aliados" className="mt-3 block text-center text-xs text-muted-foreground hover:text-primary">Ver todos nuestros aliados →</Link>
+        </div>
+      ) : (
+        <Link to="/aliados" className="block rounded-2xl border border-dashed border-border bg-secondary/40 p-6 text-center hover:bg-secondary transition-colors" data-testid="sponsor-ad-empty">
+          <Handshake className="h-7 w-7 text-terracotta mx-auto mb-2" />
+          <p className="font-serif font-bold">¿Tu negocio aquí?</p>
+          <p className="text-sm text-muted-foreground mt-1">Llega a miles de familias latinas en Oregon y apoya un medio comunitario.</p>
+          <span className="mt-3 inline-block text-sm font-medium text-primary">Sé nuestro aliado →</span>
+        </Link>
+      )}
     </div>
   );
 }

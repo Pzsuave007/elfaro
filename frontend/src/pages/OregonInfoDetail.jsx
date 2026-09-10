@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, RefreshCw, Users, CalendarClock, ListChecks, ExternalLink } from "lucide-react";
 import { api, mediaUrl, formatDate } from "@/lib/api";
 import { CategoryBadge, DemoBadge, Sources } from "@/components/shared";
+import { SponsorAd } from "@/components/Sponsors";
 import { Button } from "@/components/ui/button";
 
 const BLOCKS = [
@@ -26,7 +27,7 @@ export default function OregonInfoDetail() {
   if (!item) return <div className="max-w-3xl mx-auto px-6 py-24"><div className="h-8 w-2/3 bg-secondary animate-pulse rounded" /></div>;
 
   return (
-    <article className="max-w-3xl mx-auto px-4 sm:px-6 py-10 pb-16">
+    <article className="max-w-5xl mx-auto px-4 sm:px-6 py-10 pb-16">
       <Link to="/oregon-te-informa" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6" data-testid="back-link">
         <ArrowLeft className="h-4 w-4" /> Oregon Te Informa
       </Link>
@@ -41,28 +42,33 @@ export default function OregonInfoDetail() {
 
       {item.featured_image && <img src={mediaUrl(item.featured_image)} alt={item.title} className="mt-6 w-full rounded-xl aspect-[16/9] object-cover" />}
 
-      <div className="mt-8 space-y-4" data-testid="oregon-info-blocks">
-        {BLOCKS.map(({ key, label, icon: Icon }) => item[key] && (
-          <div key={key} className="rounded-xl border border-border bg-card p-6">
-            <h2 className="flex items-center gap-2 font-serif text-xl font-bold text-primary mb-2"><Icon className="h-5 w-5" /> {label}</h2>
-            <p className="text-foreground/80 leading-relaxed">{item[key]}</p>
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="lg:col-span-2 min-w-0 space-y-4">
+          <div className="space-y-4" data-testid="oregon-info-blocks">
+            {BLOCKS.map(({ key, label, icon: Icon }) => item[key] && (
+              <div key={key} className="rounded-xl border border-border bg-card p-6">
+                <h2 className="flex items-center gap-2 font-serif text-xl font-bold text-primary mb-2"><Icon className="h-5 w-5" /> {label}</h2>
+                <p className="text-foreground/80 leading-relaxed">{item[key]}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {item.official_source && (
-        <div className="mt-6 rounded-xl bg-primary/5 border border-primary/20 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h3 className="font-serif text-lg font-bold">Fuente oficial</h3>
-            <p className="text-sm text-muted-foreground">Consulta la información oficial directamente en el sitio del estado.</p>
-          </div>
-          <a href={item.official_source} target="_blank" rel="noopener noreferrer">
-            <Button data-testid="official-source-btn"><ExternalLink className="mr-2 h-4 w-4" /> Visitar fuente oficial</Button>
-          </a>
+          {item.official_source && (
+            <div className="rounded-xl bg-primary/5 border border-primary/20 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-serif text-lg font-bold">Fuente oficial</h3>
+                <p className="text-sm text-muted-foreground">Consulta la información oficial directamente en el sitio del estado.</p>
+              </div>
+              <a href={item.official_source} target="_blank" rel="noopener noreferrer">
+                <Button data-testid="official-source-btn"><ExternalLink className="mr-2 h-4 w-4" /> Visitar fuente oficial</Button>
+              </a>
+            </div>
+          )}
+
+          <Sources sources={item.sources} />
         </div>
-      )}
-
-      <Sources sources={item.sources} />
+        <aside><SponsorAd /></aside>
+      </div>
     </article>
   );
 }
