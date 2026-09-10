@@ -315,20 +315,29 @@ STYLE_PREFIX = {
 }
 
 
-async def _gen_and_store(styled_prompt: str, user: dict) -> str:
-    from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
+async def _gen_and_store(styled_prompt: str, user: dict, size: str = "1536x1024") -> str:
+    import asyncio, requests
+    from litellm import image_generation
+    from emergentintegrations.llm.utils import get_integration_proxy_url
     from storage import put_object
     key = os.environ.get("EMERGENT_LLM_KEY")
     if not key:
         raise HTTPException(status_code=500, detail="No hay clave de AI configurada")
+    params = {"model": "openai/gpt-image-1", "prompt": styled_prompt, "n": 1,
+              "api_key": key, "quality": "high", "size": size}
+    if key.startswith("sk-emergent-"):
+        params["api_base"] = get_integration_proxy_url() + "/llm"
     try:
-        image_gen = OpenAIImageGeneration(api_key=key)
-        images = await image_gen.generate_images(prompt=styled_prompt, model="gpt-image-1", number_of_images=1, quality="high")
+        response = await asyncio.to_thread(image_generation, **params)
+        img = response.data[0]
+        if getattr(img, "b64_json", None):
+            data = base64.b64decode(img.b64_json)
+        elif getattr(img, "url", None):
+            data = requests.get(img.url).content
+        else:
+            raise Exception("Formato de imagen inesperado")
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Error al generar imagen: {str(e)[:200]}")
-    if not images:
-        raise HTTPException(status_code=502, detail="No se generó ninguna imagen")
-    data = images[0]
     path = f"elforo-oregon/ai-images/{user['id']}/{new_id()}.png"
     result = put_object(path, data, "image/png")
     doc = {"id": new_id(), "storage_path": result["path"], "original_filename": "ai-generada.png",
