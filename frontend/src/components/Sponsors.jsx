@@ -121,4 +121,82 @@ export function SponsorAd({ sticky = true }) {
   );
 }
 
+const SECTION_NAME = { articles: "Historias", resources: "Recursos", "oregon-info": "Oregon Te Informa", places: "Conoce Oregon" };
+const _norm = (v) => (v || "").trim().toLowerCase();
+
+// Botones de contacto compactos (reutilizados por el banner de sección)
+function SponsorCtas({ s, size = "sm" }) {
+  const dirUrl = s.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.address)}` : null;
+  const cls = `inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium`;
+  return (
+    <>
+      {s.phone && (
+        <a href={`tel:${s.phone}`} onClick={() => trackSponsorClick(s.id, "call")} data-testid="section-sponsor-call"
+          className={`${cls} bg-primary text-primary-foreground hover:opacity-90`}><Phone className="h-4 w-4" /> Llamar</a>
+      )}
+      {dirUrl && (
+        <a href={dirUrl} target="_blank" rel="noopener noreferrer" onClick={() => trackSponsorClick(s.id, "directions")} data-testid="section-sponsor-directions"
+          className={`${cls} border border-border hover:bg-accent`}><MapPin className="h-4 w-4" /> Cómo llegar</a>
+      )}
+      {s.website && (
+        <a href={s.website} target="_blank" rel="noopener noreferrer" onClick={() => trackSponsorClick(s.id, "website")} data-testid="section-sponsor-web"
+          className={`${cls} border border-border hover:bg-accent`}><ExternalLink className="h-4 w-4" /> Sitio web</a>
+      )}
+    </>
+  );
+}
+
+// Banner de patrocinador de SECCIÓN (lugar premium, arriba de cada sección).
+// Prioridad: patrocinador de la sub-sección (categoría/grupo activo) > patrocinador de la sección.
+// Si no hay ninguno, muestra un CTA sutil para vender el espacio.
+export function SectionSponsorBanner({ section, subsection = "" }) {
+  const items = useSponsors();
+  const sub = _norm(subsection);
+  const sectionName = SECTION_NAME[section] || "";
+  const subSponsor = useMemo(
+    () => (items && sub ? items.find((s) => _norm(s.feature_section) === _norm(section) && _norm(s.feature_category) === sub) : null),
+    [items, section, sub]
+  );
+  const secSponsor = useMemo(
+    () => (items ? items.find((s) => _norm(s.feature_section) === _norm(section) && !_norm(s.feature_category)) : null),
+    [items, section]
+  );
+  if (items === null) return null; // cargando
+  const s = subSponsor || secSponsor;
+
+  if (!s) {
+    return (
+      <Link to="/aliados" data-testid="section-sponsor-empty"
+        className="block border-b border-dashed border-border bg-secondary/30 hover:bg-secondary/50 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-3 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Handshake className="h-4 w-4 text-terracotta" />
+          Patrocina la sección de <span className="font-medium text-foreground">{sectionName}</span>
+          <span className="text-primary font-medium">— Sé nuestro aliado →</span>
+        </div>
+      </Link>
+    );
+  }
+
+  const label = subSponsor ? `Sección ${sectionName} · ${subsection}` : `Sección ${sectionName}`;
+  return (
+    <div className="border-b border-border bg-card" data-testid="section-sponsor-banner">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-4 flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4 min-w-0">
+          {s.logo
+            ? <img src={mediaUrl(s.logo)} alt={s.title} className="h-14 w-14 object-contain rounded-lg border border-border bg-white shrink-0" />
+            : <div className="h-14 w-14 rounded-lg bg-primary/10 grid place-items-center font-serif text-lg font-bold text-primary shrink-0">{s.title?.[0]}</div>}
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-terracotta">{label} · con el apoyo de</p>
+            <p className="font-serif text-lg font-bold leading-tight truncate">{s.title}</p>
+            {s.summary && <p className="text-sm text-muted-foreground truncate max-w-md">{s.summary}</p>}
+          </div>
+        </div>
+        <div className="flex gap-2 shrink-0 flex-wrap">
+          <SponsorCtas s={s} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export { TIER_LABEL };

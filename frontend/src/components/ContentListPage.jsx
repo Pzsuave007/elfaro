@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { api } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { ArticleCard, ResourceCard, Empty } from "@/components/shared";
+import { SectionSponsorBanner } from "@/components/Sponsors";
 
 export default function ContentListPage({ kind, route, title, subtitle, categoriesKey, cardType, groups = null }) {
   const [items, setItems] = useState([]);
@@ -68,6 +69,8 @@ export default function ContentListPage({ kind, route, title, subtitle, categori
           </form>
         </div>
       </section>
+
+      <SectionSponsorBanner section={kind} subsection={category || group} />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-10">
         {/* Top level: groups or flat categories */}
