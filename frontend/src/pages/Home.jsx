@@ -26,7 +26,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/public/articles?limit=5").then((r) => setArticles(r.data.items));
+    api.get("/public/articles?limit=7").then((r) => setArticles(r.data.items));
     api.get("/public/oregon-info?limit=3").then((r) => setOregonInfo(r.data.items));
     api.get("/public/places?limit=3").then((r) => setPlaces(r.data.items));
     api.get("/site-settings").then((r) => setSettings(r.data)).catch(() => {});
