@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 # ============ AJUSTA ESTAS 4 VARIABLES ============
-REPO_URL="https://github.com/TUUSUARIO/TUREPO.git"   # tu repo de GitHub
-CPANEL_USER="elforo"                                  # usuario de cPanel
+REPO_URL="https://github.com/Pzsuave007/elfaro.git"   # repo de GitHub
+CPANEL_USER="elfaroinoregon"                          # usuario de cPanel
 PORT=8008                                             # puerto libre (verificado)
-DOMAIN="tudominio.com"                                # tu dominio (sin https)
+DOMAIN="elfaroinoregon.com"                           # dominio
 # ===================================================
 REPO="/home/${CPANEL_USER}/repo"
 PROD="/opt/${CPANEL_USER}/backend"
