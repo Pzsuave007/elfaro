@@ -53,7 +53,7 @@ function Packages({ onSelect }) {
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-terracotta mb-2">Paquetes de patrocinio</p>
           <h2 className="font-serif text-3xl font-bold">Elige cómo apoyar y hacer crecer tu negocio</h2>
         </div>
-        <span className="rounded-full bg-terracotta/10 text-terracotta text-xs font-semibold px-3 py-1.5">Precios de lanzamiento · Aliado Fundador</span>
+        <span className="rounded-full bg-terracotta/10 text-terracotta text-xs font-semibold px-3 py-1.5">Cupos limitados · Aliado Fundador</span>
       </div>
       <div className="mt-8 grid md:grid-cols-3 gap-6 items-stretch">
         {PACKAGES.map((p) => (
@@ -66,11 +66,7 @@ function Packages({ onSelect }) {
             )}
             <h3 className="font-serif text-xl font-bold">{p.name}</h3>
             <p className="text-sm text-muted-foreground mt-1">{p.tagline}</p>
-            <div className="mt-4 flex items-baseline gap-1">
-              <span className="font-serif text-3xl font-bold">{p.price}</span>
-              <span className="text-sm text-muted-foreground">{p.period}</span>
-            </div>
-            <ul className="mt-4 space-y-2 flex-1">
+            <ul className="mt-5 space-y-2 flex-1">
               {p.features.map((feat, i) => (
                 <li key={i} className="flex gap-2 text-sm text-foreground/80"><Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" /> {feat}</li>
               ))}
@@ -81,7 +77,7 @@ function Packages({ onSelect }) {
           </div>
         ))}
       </div>
-      <p className="mt-4 text-xs text-muted-foreground">Precios mensuales en dólares. Descuento por pago anual (paga 10 meses, lleva 12). Pueden variar según la sección y la temporada.</p>
+      <p className="mt-4 text-xs text-muted-foreground">Escríbenos y te enviamos los detalles de cada paquete. Descuento por pago anual disponible.</p>
     </div>
   );
 }
