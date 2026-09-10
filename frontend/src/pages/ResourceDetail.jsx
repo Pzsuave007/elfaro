@@ -33,6 +33,11 @@ export default function ResourceDetail() {
       <Link to="/recursos" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-6" data-testid="back-link">
         <ArrowLeft className="h-4 w-4" /> Recursos
       </Link>
+      {item.featured_image && (
+        <div className="mb-6 overflow-hidden rounded-2xl border border-border bg-secondary aspect-[16/9]" data-testid="resource-image">
+          <img src={mediaUrl(item.featured_image)} alt={item.title} className="h-full w-full object-cover" />
+        </div>
+      )}
       <div className="flex items-center gap-2 flex-wrap mb-3">
         <CategoryBadge>{item.category}</CategoryBadge>
         {item.is_demo && <DemoBadge />}
