@@ -13,7 +13,7 @@ from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 ai_router = APIRouter(prefix="/api/ai", tags=["ai"])
 
-EDITORIAL_SYSTEM_PROMPT = """Eres editor de El Foro In Oregon, una plataforma informativa NO partidista en español para la comunidad latina de Oregon.
+EDITORIAL_SYSTEM_PROMPT = """Eres editor de El Faro In Oregon, una plataforma informativa NO partidista en español para la comunidad latina de Oregon.
 
 REGLAS DE CONTENIDO:
 - No promuevas ni ataques partidos, candidatos o ideologías. Separa hechos, declaraciones y opiniones.
@@ -224,7 +224,7 @@ class HeroTextRequest(BaseModel):
 @ai_router.post("/hero-text")
 async def hero_text(req: HeroTextRequest, user: dict = Depends(get_current_user)):
     extra = f" Instrucciones del editor: {req.instructions}." if req.instructions else ""
-    prompt = ("Eres editor de El Foro In Oregon, una plataforma informativa NO partidista en español para la comunidad "
+    prompt = ("Eres editor de El Faro In Oregon, una plataforma informativa NO partidista en español para la comunidad "
               "latina de Oregon. Propón 4 versiones DISTINTAS del texto de la portada (hero) del sitio.{extra} "
               "Cada versión debe tener: eyebrow (frase corta superior, máx 8 palabras), title (título principal claro y "
               "acogedor, no sensacionalista, máx 14 palabras) y subtitle (1 oración que resuma qué ofrece el sitio). "

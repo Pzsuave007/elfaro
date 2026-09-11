@@ -70,7 +70,7 @@ export default function Aliados() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12" data-testid="aliados-page">
       <p className="text-xs font-semibold uppercase tracking-[0.15em] text-terracotta mb-3">Nuestros Aliados</p>
       <h1 className="font-serif text-4xl sm:text-5xl font-bold leading-tight max-w-3xl">Negocios y organizaciones que apoyan a nuestra comunidad</h1>
-      <p className="mt-4 text-lg text-muted-foreground max-w-2xl">Gracias a nuestros aliados, El Foro In Oregon mantiene información gratuita y en español para la comunidad latina de Oregon.</p>
+      <p className="mt-4 text-lg text-muted-foreground max-w-2xl">Gracias a nuestros aliados, El Faro In Oregon mantiene información gratuita y en español para la comunidad latina de Oregon.</p>
 
       {items && items.length === 0 && (
         <div className="mt-10 rounded-2xl border border-dashed border-border bg-secondary/30 p-10 text-center text-muted-foreground" data-testid="aliados-empty">

@@ -66,7 +66,7 @@ export function SiteFooter() {
           <SponsorStrip variant="footer" />
         </div>
         <div className="mt-8 pt-6 border-t border-white/15 flex flex-col sm:flex-row justify-between gap-3 text-xs text-primary-foreground/60">
-          <span>© {new Date().getFullYear()} El Foro In Oregon. Todos los derechos reservados.</span>
+          <span>© {new Date().getFullYear()} El Faro In Oregon. Todos los derechos reservados.</span>
           <span>Información neutral y verificable · Fuentes oficiales</span>
         </div>
       </div>

@@ -119,7 +119,7 @@ async def delete_race(rid: str, user: dict = Depends(require_role("editor"))):
     return {"ok": True}
 
 
-# ---------- Questions (El Foro Pregunta) applied to whole race ----------
+# ---------- Questions (El Faro Pregunta) applied to whole race ----------
 @elections_router.put("/admin/races/{rid}/questions")
 async def set_questions(rid: str, payload: Dict[str, Any], user: dict = Depends(require_role("editor"))):
     """payload: {questions: ["texto", ...]} -> stored with ids, applied to all candidates."""

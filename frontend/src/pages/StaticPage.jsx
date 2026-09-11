@@ -4,7 +4,7 @@ const PAGES = {
   acerca: {
     title: "Acerca de nosotros",
     body: [
-      "El Foro In Oregon es una plataforma informativa en español dedicada a ayudar a nuestra comunidad a comprender mejor Oregon, sus recursos, sus instituciones y los temas que afectan nuestra vida cotidiana.",
+      "El Faro In Oregon es una plataforma informativa en español dedicada a ayudar a nuestra comunidad a comprender mejor Oregon, sus recursos, sus instituciones y los temas que afectan nuestra vida cotidiana.",
       "Nuestra misión es ayudar a la comunidad hispanohablante a vivir, participar y entender mejor Oregon mediante información clara sobre noticias, recursos comunitarios, leyes, gobierno, elecciones y lugares importantes del estado.",
       "Creemos en la información verificable, neutral y accesible. Separamos claramente las noticias, las opiniones y el contenido patrocinado.",
     ],
@@ -12,7 +12,7 @@ const PAGES = {
   "politica-editorial": {
     title: "Nuestra Política Editorial",
     body: [
-      "El Foro In Oregon es una plataforma informativa en español dedicada a ayudar a nuestra comunidad a comprender mejor Oregon, sus recursos, sus instituciones y los temas que afectan nuestra vida cotidiana.",
+      "El Faro In Oregon es una plataforma informativa en español dedicada a ayudar a nuestra comunidad a comprender mejor Oregon, sus recursos, sus instituciones y los temas que afectan nuestra vida cotidiana.",
       "En asuntos públicos y políticos buscamos presentar diferentes perspectivas de manera clara y respetuosa, dando espacio a distintas voces para que nuestros lectores puedan informarse y formar sus propias opiniones.",
       "Cuando presentamos candidatos o asuntos electorales buscamos utilizar criterios consistentes, preguntas equivalentes y fuentes identificadas.",
       "Las noticias, opiniones y contenidos patrocinados estarán claramente identificados.",
@@ -46,7 +46,7 @@ const PAGES = {
   terminos: {
     title: "Términos de Uso",
     body: [
-      "El contenido de El Foro In Oregon tiene fines informativos y educativos. No constituye asesoría legal, médica ni financiera.",
+      "El contenido de El Faro In Oregon tiene fines informativos y educativos. No constituye asesoría legal, médica ni financiera.",
       "Para asuntos legales, electorales, de salud, gobierno o asistencia pública, te recomendamos siempre consultar las fuentes oficiales enlazadas en cada artículo.",
       "Nos esforzamos por mantener la información actualizada y verificada, pero te sugerimos confirmar los detalles con la fuente oficial.",
     ],

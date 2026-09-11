@@ -95,7 +95,7 @@ function AliadoForm({ presetMessage = "" }) {
     <div className="rounded-2xl border border-border bg-secondary/40 p-8 text-center" data-testid="aliado-form-done">
       <CheckCircle2 className="h-10 w-10 text-primary mx-auto mb-3" />
       <h3 className="font-serif text-xl font-bold">¡Gracias! Te contactaremos pronto.</h3>
-      <p className="text-muted-foreground mt-1">Recibimos tu interés en apoyar a El Foro In Oregon.</p>
+      <p className="text-muted-foreground mt-1">Recibimos tu interés en apoyar a El Faro In Oregon.</p>
     </div>
   );
   return (
@@ -124,7 +124,7 @@ export default function Patrocina() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12" data-testid="patrocina-page">
       <p className="text-xs font-semibold uppercase tracking-[0.15em] text-terracotta mb-3">Sé nuestro aliado</p>
-      <h1 className="font-serif text-4xl sm:text-5xl font-bold leading-tight max-w-3xl">Patrocina El Foro In Oregon y haz crecer tu negocio</h1>
+      <h1 className="font-serif text-4xl sm:text-5xl font-bold leading-tight max-w-3xl">Patrocina El Faro In Oregon y haz crecer tu negocio</h1>
       <p className="mt-4 text-lg text-muted-foreground max-w-2xl">Llega a miles de familias latinas en Oregon y apoya un medio comunitario confiable, no partidista y en español. Elige el paquete que mejor se ajuste a tu negocio.</p>
       <Link to="/aliados" className="mt-4 inline-block text-sm font-medium text-primary hover:underline" data-testid="see-allies-link">Ver a los negocios que ya nos apoyan →</Link>
 

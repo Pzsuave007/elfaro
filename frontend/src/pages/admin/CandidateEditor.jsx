@@ -86,7 +86,7 @@ export default function CandidateEditor() {
 
         {questions.length > 0 && (
           <div className="rounded-xl border border-border bg-card p-5" data-testid="candidate-answers-editor">
-            <h2 className="font-serif text-lg font-bold mb-3">Respuestas — El Foro Pregunta</h2>
+            <h2 className="font-serif text-lg font-bold mb-3">Respuestas — El Faro Pregunta</h2>
             {questions.map((q) => (
               <div key={q.id} className="mb-4">
                 <Label className="mb-1.5 block text-sm">{q.text}</Label>

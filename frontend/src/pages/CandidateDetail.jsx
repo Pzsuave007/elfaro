@@ -50,7 +50,7 @@ export default function CandidateDetail() {
         )}
         {questions.length > 0 && (
           <section data-testid="candidate-answers">
-            <h2 className="font-serif text-2xl font-bold mb-4">El Foro Pregunta</h2>
+            <h2 className="font-serif text-2xl font-bold mb-4">El Faro Pregunta</h2>
             <div className="space-y-4">
               {questions.map((q) => (
                 <div key={q.id} className="rounded-xl border border-border bg-card p-5">

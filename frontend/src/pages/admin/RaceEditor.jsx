@@ -41,9 +41,9 @@ export default function RaceEditor() {
       <h1 className="font-serif text-3xl font-bold" data-testid="race-editor-title">{race.title}</h1>
       <p className="text-muted-foreground">{race.district}</p>
 
-      {/* El Foro Pregunta */}
+      {/* El Faro Pregunta */}
       <div className="mt-8 rounded-xl border border-border bg-card p-6">
-        <h2 className="font-serif text-xl font-bold">El Foro Pregunta</h2>
+        <h2 className="font-serif text-xl font-bold">El Faro Pregunta</h2>
         <p className="text-sm text-muted-foreground mb-4">Las mismas preguntas se aplican a todos los candidatos de esta carrera.</p>
         <div className="space-y-2">
           {questions.map((q, i) => (

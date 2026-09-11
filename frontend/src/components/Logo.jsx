@@ -9,7 +9,7 @@ export function Logo({ className = "", compact = false, light = false }) {
       </span>
       <span className="leading-[0.95]">
         <span className={`block font-serif font-bold tracking-tight ${compact ? "text-base" : "text-lg"} ${light ? "text-white" : "text-foreground"}`}>
-          EL FORO
+          EL FARO
         </span>
         <span className={`block font-sans font-semibold tracking-[0.25em] text-[10px] ${light ? "text-white/70" : "text-primary"}`}>
           IN OREGON

@@ -47,10 +47,10 @@ export default function RaceCompare() {
             ))}
           </div>
 
-          {/* El Foro Pregunta */}
+          {/* El Faro Pregunta */}
           {questions.length > 0 && (
             <div className="mt-6">
-              <h2 className="font-serif text-2xl font-bold mb-4">El Foro Pregunta</h2>
+              <h2 className="font-serif text-2xl font-bold mb-4">El Faro Pregunta</h2>
               <div className="space-y-4">
                 {questions.map((q) => (
                   <div key={q.id} className="grid gap-4 items-start" style={{ gridTemplateColumns: `200px repeat(${candidates.length}, minmax(220px, 1fr))` }}>

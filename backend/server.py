@@ -16,7 +16,7 @@ from seed_data import seed_demo
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="El Foro In Oregon API")
+app = FastAPI(title="El Faro In Oregon API")
 
 app.include_router(auth_router)
 app.include_router(elections_router)
@@ -28,12 +28,12 @@ app.include_router(media_router)
 
 @app.get("/api/")
 async def api_root():
-    return {"status": "ok", "service": "El Foro In Oregon"}
+    return {"status": "ok", "service": "El Faro In Oregon"}
 
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "service": "El Foro In Oregon"}
+    return {"status": "ok", "service": "El Faro In Oregon"}
 
 
 app.add_middleware(
