@@ -55,10 +55,18 @@ echo ">>> [6/7] Arreglando permisos de imagenes y reiniciando backend..."
 mkdir -p "$MEDIA"
 chown -R "$U:$U" "$MEDIA" "$PROD"
 chmod -R u+rwX "$MEDIA"
-pkill -9 -f "uvicorn server:app" 2>/dev/null || true
+# Asegurar MongoDB arriba
+for s in mongod mongodb; do systemctl start "$s" 2>/dev/null && break; done
 sleep 2
-as_user "PORT=$PORT CPANEL_USER=$U bash $REPO/deploy/restart.sh"
-sleep 3
+# Si existe el servicio systemd (harden.sh), usarlo; si no, el metodo nohup
+if systemctl list-unit-files 2>/dev/null | grep -q "^elfaro-backend.service"; then
+  systemctl restart elfaro-backend
+else
+  pkill -9 -f "uvicorn server:app" 2>/dev/null || true
+  sleep 2
+  as_user "PORT=$PORT CPANEL_USER=$U bash $REPO/deploy/restart.sh"
+fi
+sleep 4
 
 # --- 7. Verificar ---
 echo ">>> [7/7] Probando el backend..."
