@@ -1,0 +1,8 @@
+{
+  "ignorePatterns": [
+    "**/build/**",
+    "frontend/build/**",
+    "**/*.min.js",
+    "**/node_modules/**"
+  ]
+}

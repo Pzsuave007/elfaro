@@ -16,15 +16,11 @@ pip install -r "$REPO/deploy/requirements.prod.txt" \
 echo ">>> [user] Copiando código del backend a $PROD (el .env de prod NO se toca)"
 cp "$REPO"/backend/*.py "$PROD"/
 
-echo ">>> [user] Construyendo el frontend con la URL de producción"
-cd "$REPO/frontend"
-printf 'REACT_APP_BACKEND_URL=https://%s\nGENERATE_SOURCEMAP=false\n' "$DOMAIN" > .env
-export NODE_OPTIONS=--max-old-space-size=2048
-export CI=false
-yarn install --ignore-engines
-yarn build
-
-echo ">>> [user] Publicando el frontend en public_html"
+echo ">>> [user] Publicando el frontend YA CONSTRUIDO (el servidor NO reconstruye)"
+if [ ! -f "$REPO/frontend/build/index.html" ]; then
+  echo "  ❌ Falta $REPO/frontend/build. Construye en Emergent y haz 'Save to Github'. NO se hace build aquí."
+  exit 1
+fi
 mkdir -p "$PUB"
 rm -rf "$PUB/static" "$PUB/index.html" "$PUB/asset-manifest.json" "$PUB/manifest.json" "$PUB/robots.txt" "$PUB/favicon.ico"
 cp -r "$REPO/frontend/build/." "$PUB/"

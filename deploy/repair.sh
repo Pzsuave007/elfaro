@@ -38,10 +38,14 @@ as_user "cd $PROD && source venv/bin/activate && pip install -q -r $REPO/deploy/
 echo ">>> [3/7] Copiando backend a produccion..."
 as_user "cp $REPO/backend/*.py $PROD/"
 
-# --- 4. Reconstruir el frontend ---
-echo ">>> [4/7] Reconstruyendo el frontend (puede tardar 1-2 min)..."
-as_user "cd $REPO/frontend && printf 'REACT_APP_BACKEND_URL=https://%s\nGENERATE_SOURCEMAP=false\n' '$DOMAIN' > .env && export NODE_OPTIONS=--max-old-space-size=2048 && export CI=false && yarn install --ignore-engines --silent && yarn build"
-echo ">>> [5/7] Publicando el frontend en public_html..."
+# --- 4. Publicar el frontend YA CONSTRUIDO (el servidor NUNCA reconstruye) ---
+echo ">>> [4/7] Verificando el frontend ya construido..."
+if [ ! -f "$REPO/frontend/build/index.html" ]; then
+  echo "  X Falta $REPO/frontend/build. Construye en Emergent y haz 'Save to Github'."
+  echo "    El servidor NO hace build (evita quedarse sin memoria)."
+  exit 1
+fi
+echo ">>> [5/7] Publicando el frontend en public_html (solo copia, sin build)..."
 rm -rf "$PUB/static" "$PUB/index.html" "$PUB/asset-manifest.json" "$PUB/manifest.json" "$PUB/robots.txt" "$PUB/favicon.ico"
 cp -r "$REPO/frontend/build/." "$PUB/"
 cp "$REPO/deploy/htaccess" "$PUB/.htaccess"

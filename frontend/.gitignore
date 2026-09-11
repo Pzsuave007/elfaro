@@ -9,7 +9,8 @@
 /coverage
 
 # production
-/build
+# build is committed to the repo on purpose — the server must NEVER rebuild the frontend
+# /build
 
 # misc
 .DS_Store
