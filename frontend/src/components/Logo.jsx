@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 
-const SIZES = { sm: "h-10", md: "h-14", lg: "h-24", xl: "h-32" };
+const SIZES = { sm: "h-9", md: "h-14", lg: "h-20", xl: "h-24" };
 
 export function Logo({ className = "", compact = false, light = false, size }) {
   const heightClass = SIZES[size] || (compact ? "h-10" : "h-14");
