@@ -131,18 +131,24 @@ def _extract_citations(raw):
 
 
 async def _run_grounded(system: str, prompt: str):
-    """Ejecuta Gemini con Google Search (grounding). Devuelve (texto, citas)."""
-    key = os.environ.get("EMERGENT_LLM_KEY")
-    if not key:
+    """Gemini con Google Search (grounding) si hay clave de Emergent válida.
+    Si no, hace fallback al LLM normal (OpenAI del usuario) SIN búsqueda web."""
+    key = (os.environ.get("EMERGENT_LLM_KEY") or "").strip()
+    use_emergent = key.startswith("sk-emergent-") and "XXXX" not in key
+    if use_emergent:
+        try:
+            chat = (LlmChat(api_key=key, session_id=new_id(), system_message=system)
+                    .with_model("gemini", GROUND_MODEL)
+                    .with_tools([{"googleSearch": {}}]))
+            resp = await chat.send_message_with_tools(UserMessage(text=prompt))
+            return (resp.content or ""), _extract_citations(resp.raw)
+        except Exception:
+            pass  # si Gemini falla, caemos al fallback con OpenAI
+    # Fallback: sin búsqueda web en vivo, usa el LLM normal (clave OpenAI del usuario)
+    if not _get_ai_key():
         raise HTTPException(status_code=500, detail="No hay clave de AI configurada")
-    chat = (LlmChat(api_key=key, session_id=new_id(), system_message=system)
-            .with_model("gemini", GROUND_MODEL)
-            .with_tools([{"googleSearch": {}}]))
-    try:
-        resp = await chat.send_message_with_tools(UserMessage(text=prompt))
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Error de AI: {str(e)[:200]}")
-    return (resp.content or ""), _extract_citations(resp.raw)
+    text = await _run(system, prompt)
+    return text, []
 
 
 @ai_router.post("/assist")

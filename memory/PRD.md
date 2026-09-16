@@ -53,6 +53,8 @@ Plataforma web informativa, no partidista y en español para la comunidad hispan
 
 - ✅ Logo de marca (2026-06): agregado logo "El Faro en Oregón" (faro + contorno Oregon). Procesado con Pillow: quitado el badge "Made with AI" y fondo hecho transparente vía floodfill desde bordes (preserva blancos internos). Guardado en frontend/src/assets/logo.png (RGBA 664x790). Logo.jsx ahora renderiza <img> (h-14 header a color; footer con brightness-0 invert = silueta blanca sobre verde). Build de prod reconstruido con el logo. Verificado por screenshot (header + footer).
 
+- ✅ Fallback IA a OpenAI del usuario (2026-06): `_run_grounded` (usado por /ai/research y /ai/generate-post) ahora detecta si EMERGENT_LLM_KEY es válida (empieza "sk-emergent-" y sin "XXXX"); si sí → Gemini+googleSearch como antes; si no → fallback a `_run` (clave OpenAI del usuario) SIN grounding (citas vacías). Esto permite que "Investigar con AI" funcione en producción con solo la OPENAI_API_KEY del usuario (sin enlaces web en vivo). También /ai/_gen_and_store (imágenes) usa `_get_ai_key()` (OpenAI directo si no es sk-emergent). Preview verificado (Gemini sigue devolviendo opciones+fuentes). Requiere deploy (Save to Github + repair.sh). Prod usa AI_MODEL=gpt-4o (gpt-5.4 es solo de Emergent).
+
 ## Backlog / Remaining (P1/P2)
 - P1: Rich text editor (currently textarea), scheduled auto-publish job, SEO meta tags injection + sitemap.xml/robots.txt served, ballot measures.
 - P2: Newsletter, WhatsApp, push, member accounts, saved articles, English version, "Who Represents Me" + ZIP lookup, PWA. (Architecture ready.)
