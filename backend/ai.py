@@ -320,7 +320,7 @@ async def _gen_and_store(styled_prompt: str, user: dict, size: str = "1536x1024"
     from litellm import image_generation
     from emergentintegrations.llm.utils import get_integration_proxy_url
     from storage import put_object, compress_image
-    key = os.environ.get("EMERGENT_LLM_KEY")
+    key = _get_ai_key()
     if not key:
         raise HTTPException(status_code=500, detail="No hay clave de AI configurada")
     params = {"model": "openai/gpt-image-1", "prompt": styled_prompt, "n": 1,
