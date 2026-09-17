@@ -82,3 +82,9 @@ admin@elforo.org / ForoOregon2026 (super_admin). See /app/memory/test_credential
 - Frontend ContentEditor.jsx (AIImageButton): boton "Subir imagen de referencia" + preview; tras generar muestra el resultado con input "Cambiar algo?" para reeditar. Endpoints devuelven {url, path}.
 - Requiere OPENAI_API_KEY (clave del usuario). NO probable en preview (preview no tiene clave OpenAI) — verificado que el flujo llega y devuelve errores correctos; UI verificada por screenshot. El usuario prueba el happy-path en su VPS.
 - Build de produccion reconstruido con URL relativa.
+
+## Feature (Jun 2026) — Investigar candidato con AI + Video de YouTube
+- Backend ai.py: POST /api/ai/research-candidate (name, race_title, race_type, district, questions[]) usa Gemini grounding (Emergent) para traer datos publicos reales y devuelve {fields:{party,bio,experience,campaign_info,website,twitter}, priorities[], answers[] (alineadas al orden de preguntas), sources[]}. Neutral, no inventa; deja vacio lo que no encuentra. Probado con curl (Tina Kotek) => datos reales + fuentes.
+- Frontend CandidateEditor.jsx: boton "Investigar con AI" (data-testid candidate-ai-research) auto-rellena campos vacios y mapea answers a q.id por orden; marca used_ai; agrega sources.
+- Video YouTube: componente components/VideoEmbed.jsx (getYouTubeId + iframe responsive). schemas.js agrega campo video_url (type "video") a articles, resources, oregon-info, places. ContentEditor.jsx nuevo case "video" con preview en vivo. Paginas publicas ArticleDetail/ResourceDetail/OregonInfoDetail/PlaceDetail muestran <VideoEmbed>. content.py acepta campos arbitrarios (sin cambios backend).
+- Build de produccion reconstruido (URL relativa). Usuario pidio NO usar testing agent salvo que lo solicite.
