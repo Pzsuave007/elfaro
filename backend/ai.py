@@ -241,20 +241,38 @@ async def hero_text(req: HeroTextRequest, user: dict = Depends(get_current_user)
     return {"options": data.get("options", [])}
 
 
+def _grounding_ok() -> bool:
+    """True si hay clave de Emergent válida (permite búsqueda web con Gemini)."""
+    key = (os.environ.get("EMERGENT_LLM_KEY") or "").strip()
+    return key.startswith("sk-emergent-") and "XXXX" not in key
+
+
 @ai_router.post("/research")
 async def research(req: ResearchRequest, user: dict = Depends(get_current_user)):
     ctx = KIND_CONTEXT.get(req.kind, "un contenido informativo para la comunidad de Oregon")
     extra = f" Datos/instrucciones del editor: {req.instructions}." if req.instructions else ""
-    prompt = (f"Busca en la web información REAL y actual sobre: \"{req.topic}\". "
-              f"Contexto: estamos preparando {ctx} para la comunidad latina de Oregon.{extra}\n\n"
-              f"Devuelve entre 4 y 6 resultados REALES encontrados en la búsqueda (noticias, artículos, publicaciones, "
-              f"perfiles o páginas oficiales). Para cada resultado incluye:\n"
-              f"- title: el tema/persona/organización específica y concreta (por ejemplo el nombre real de la persona o programa).\n"
-              f"- summary: 2-3 frases con datos CONCRETOS de la fuente (qué, quién, dónde, cuándo).\n"
-              f"- source: el nombre o dominio de la fuente.\n"
-              f"Usa SOLO información real encontrada en la búsqueda. NUNCA inventes personas, datos ni fuentes. "
-              f"Si no encuentras resultados reales suficientes, devuelve menos. "
-              f'Responde SOLO con JSON: {{"options":[{{"title":"","summary":"","source":""}}]}}')
+    if _grounding_ok():
+        prompt = (f"Busca en la web información REAL y actual sobre: \"{req.topic}\". "
+                  f"Contexto: estamos preparando {ctx} para la comunidad latina de Oregon.{extra}\n\n"
+                  f"Devuelve entre 4 y 6 resultados REALES encontrados en la búsqueda (noticias, artículos, publicaciones, "
+                  f"perfiles o páginas oficiales). Para cada resultado incluye:\n"
+                  f"- title: el tema/persona/organización específica y concreta (por ejemplo el nombre real de la persona o programa).\n"
+                  f"- summary: 2-3 frases con datos CONCRETOS de la fuente (qué, quién, dónde, cuándo).\n"
+                  f"- source: el nombre o dominio de la fuente.\n"
+                  f"Usa SOLO información real encontrada en la búsqueda. NUNCA inventes personas, datos ni fuentes. "
+                  f"Si no encuentras resultados reales suficientes, devuelve menos. "
+                  f'Responde SOLO con JSON: {{"options":[{{"title":"","summary":"","source":""}}]}}')
+    else:
+        prompt = (f"Propón entre 4 y 6 ENFOQUES o ángulos concretos para {ctx} sobre el tema: \"{req.topic}\". "
+                  f"Es para la comunidad latina de Oregon.{extra}\n\n"
+                  f"Para cada enfoque incluye:\n"
+                  f"- title: el ángulo específico y concreto del artículo.\n"
+                  f"- summary: 2-3 frases con la información general y útil que conoces sobre ese enfoque.\n"
+                  f"- source: déjalo vacío.\n"
+                  f"IMPORTANTE: son ideas/enfoques basados en conocimiento general; el editor verificará y agregará "
+                  f"fuentes oficiales y datos específicos antes de publicar. Evita inventar cifras exactas, nombres "
+                  f"propios de personas, teléfonos, direcciones o URLs. "
+                  f'Responde SOLO con JSON: {{"options":[{{"title":"","summary":"","source":""}}]}}')
     content, cites = await _run_grounded(EDITORIAL_SYSTEM_PROMPT, prompt)
     data = _parse_json(content)
     options = data.get("options", []) or []
@@ -277,11 +295,19 @@ async def generate_post(req: GenerateRequest, user: dict = Depends(get_current_u
     guide = GEN_GUIDE.get(req.kind, "")
     extra = f" Datos/instrucciones del editor (úsalos como base, no inventes más allá de esto): {req.instructions}." if req.instructions else ""
     src_line = f"\nFuente encontrada: {sel.get('source','')} {sel.get('source_url','')}" if (sel.get('source') or sel.get('source_url')) else ""
-    prompt = (f"Investiga en la web y crea un BORRADOR completo de {ctx} basado en este resultado elegido:\n"
+    if _grounding_ok():
+        lead = "Investiga en la web y crea"
+        real_line = ("Usa información REAL y verificable encontrada en la búsqueda web. Incluye datos concretos (nombres, "
+                     "lugares, fechas, cifras) SOLO si aparecen en fuentes reales. NO inventes nada.")
+    else:
+        lead = "Con base en el tema y tu conocimiento general, crea"
+        real_line = ("Escribe información general clara y útil sobre el tema. Es un BORRADOR: el editor verificará y "
+                     "agregará las fuentes oficiales y los datos específicos antes de publicar. NO inventes cifras exactas, "
+                     "nombres propios de personas, teléfonos, direcciones, fechas exactas ni URLs; si no lo sabes con certeza, déjalo general o vacío.")
+    prompt = (f"{lead} un BORRADOR completo de {ctx} basado en este resultado elegido:\n"
               f"Tema/título: {sel.get('title','')}\nResumen: {sel.get('summary','')}{src_line}\n"
               f"Tema general: {req.topic}.{extra}\n\n"
-              f"Usa información REAL y verificable encontrada en la búsqueda web. Incluye datos concretos (nombres, "
-              f"lugares, fechas, cifras) SOLO si aparecen en fuentes reales. NO inventes nada.\n\n{guide}\n\n{NO_INVENT}\n\n"
+              f"{real_line}\n\n{guide}\n\n{NO_INVENT}\n\n"
               f"Rellena TODOS los campos posibles con información concreta y útil (sin relleno). "
               f"Responde SOLO con JSON con esta forma exacta:\n{schema}")
     content, cites = await _run_grounded(EDITORIAL_SYSTEM_PROMPT, prompt)

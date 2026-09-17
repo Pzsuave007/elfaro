@@ -55,6 +55,8 @@ Plataforma web informativa, no partidista y en español para la comunidad hispan
 
 - ✅ Fallback IA a OpenAI del usuario (2026-06): `_run_grounded` (usado por /ai/research y /ai/generate-post) ahora detecta si EMERGENT_LLM_KEY es válida (empieza "sk-emergent-" y sin "XXXX"); si sí → Gemini+googleSearch como antes; si no → fallback a `_run` (clave OpenAI del usuario) SIN grounding (citas vacías). Esto permite que "Investigar con AI" funcione en producción con solo la OPENAI_API_KEY del usuario (sin enlaces web en vivo). También /ai/_gen_and_store (imágenes) usa `_get_ai_key()` (OpenAI directo si no es sk-emergent). Preview verificado (Gemini sigue devolviendo opciones+fuentes). Requiere deploy (Save to Github + repair.sh). Prod usa AI_MODEL=gpt-4o (gpt-5.4 es solo de Emergent).
 
+- ✅ Research/generate-post prompts grounding-aware (2026-06): agregado `_grounding_ok()`. /ai/research y /ai/generate-post ahora usan prompt distinto según haya clave Emergent válida: con grounding → "busca en la web, solo datos reales" (Gemini); sin grounding (solo OpenAI del usuario) → pide "enfoques/ángulos desde conocimiento general" y "borrador para verificar", evitando el bloqueo "NO inventes/solo web" que devolvía 0 opciones. Preview (Gemini) verificado: 5 opciones + 5 fuentes. Requiere deploy.
+
 ## Backlog / Remaining (P1/P2)
 - P1: Rich text editor (currently textarea), scheduled auto-publish job, SEO meta tags injection + sitemap.xml/robots.txt served, ballot measures.
 - P2: Newsletter, WhatsApp, push, member accounts, saved articles, English version, "Who Represents Me" + ZIP lookup, PWA. (Architecture ready.)
