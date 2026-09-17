@@ -24,21 +24,53 @@ function AIImageButton({ aiContext, onChange }) {
   const [style, setStyle] = useState("comic");
   const [customPrompt, setCustomPrompt] = useState("");
   const [busy, setBusy] = useState(false);
+  const [refFile, setRefFile] = useState(null);
+  const [refPreview, setRefPreview] = useState("");
+  const [result, setResult] = useState(null);   // { url, path }
+  const [editInstruction, setEditInstruction] = useState("");
+
+  const reset = () => {
+    setRefFile(null); setRefPreview(""); setResult(null); setEditInstruction(""); setCustomPrompt("");
+  };
+  const pickRef = (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setRefFile(f);
+    setRefPreview(URL.createObjectURL(f));
+    e.target.value = "";
+  };
   const gen = async () => {
     setBusy(true);
     try {
-      const { data } = await api.post("/ai/illustrate", {
-        kind: aiContext.kind,
-        title: aiContext.title || "",
-        summary: aiContext.summary || "",
-        body: aiContext.body || "",
-        style,
-        custom_prompt: customPrompt,
-      });
+      let data;
+      if (refFile) {
+        const fd = new FormData();
+        fd.append("file", refFile);
+        fd.append("style", style);
+        fd.append("custom_prompt", customPrompt);
+        ({ data } = await api.post("/ai/illustrate-from-image", fd, { headers: { "Content-Type": "multipart/form-data" } }));
+      } else {
+        ({ data } = await api.post("/ai/illustrate", {
+          kind: aiContext.kind, title: aiContext.title || "", summary: aiContext.summary || "",
+          body: aiContext.body || "", style, custom_prompt: customPrompt,
+        }));
+      }
+      setResult(data);
       onChange(data.url);
       toast.success("Imagen generada y aplicada");
-      setOpen(false);
     } catch (e) { toast.error(e.response?.data?.detail || "Error al generar imagen"); }
+    finally { setBusy(false); }
+  };
+  const reedit = async () => {
+    if (!result?.path || !editInstruction.trim()) return;
+    setBusy(true);
+    try {
+      const { data } = await api.post("/ai/edit-image", { path: result.path, instruction: editInstruction, style });
+      setResult(data);
+      onChange(data.url);
+      setEditInstruction("");
+      toast.success("Imagen actualizada");
+    } catch (e) { toast.error(e.response?.data?.detail || "Error al editar imagen"); }
     finally { setBusy(false); }
   };
   const tab = (v, l) => (
@@ -46,16 +78,16 @@ function AIImageButton({ aiContext, onChange }) {
       className={`rounded-md px-3 py-1.5 text-sm ${style === v ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{l}</button>
   );
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
       <DialogTrigger asChild>
         <Button type="button" variant="outline" size="sm" className="border-primary/40 text-primary shrink-0" data-testid="ai-illustrate-btn">
           <Sparkles className="mr-1.5 h-4 w-4" /> Ilustrar con AI
         </Button>
       </DialogTrigger>
-      <DialogContent data-testid="ai-illustrate-dialog">
+      <DialogContent data-testid="ai-illustrate-dialog" className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-serif flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" /> Ilustrar el contenido</DialogTitle>
-          <DialogDescription>La AI crea una imagen que representa el artículo. Describe la escena o deja que la AI la proponga a partir del título y el resumen. Libre de copyright.</DialogDescription>
+          <DialogDescription>Crea una imagen desde el contenido, o sube una foto de referencia para convertirla a cómic/ilustración. Libre de copyright.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
@@ -63,14 +95,47 @@ function AIImageButton({ aiContext, onChange }) {
             <div className="inline-flex rounded-lg border border-border p-0.5">{tab("comic", "Cómic")}{tab("illustration", "Ilustración")}{tab("photo", "Foto")}</div>
           </div>
           <div>
-            <Label className="mb-1.5 block">Describe la imagen (opcional)</Label>
+            <Label className="mb-1.5 block">Imagen de referencia (opcional)</Label>
+            {refPreview ? (
+              <div className="flex items-center gap-3">
+                <img src={refPreview} alt="referencia" className="h-20 w-20 rounded-md object-cover border border-border" data-testid="ai-ref-preview" />
+                <Button type="button" variant="ghost" size="sm" onClick={() => { setRefFile(null); setRefPreview(""); }} data-testid="ai-ref-remove">
+                  <X className="mr-1 h-4 w-4" /> Quitar
+                </Button>
+              </div>
+            ) : (
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted" data-testid="ai-ref-upload-label">
+                <Upload className="h-4 w-4" /> Subir imagen de referencia
+                <input type="file" accept="image/*" className="hidden" onChange={pickRef} data-testid="ai-ref-upload" />
+              </label>
+            )}
+            {refPreview && <p className="mt-1.5 text-xs text-muted-foreground">La AI recreará esta foto en el estilo elegido, manteniendo la escena y las personas.</p>}
+          </div>
+          <div>
+            <Label className="mb-1.5 block">{refPreview ? "Indicaciones extra (opcional)" : "Describe la imagen (opcional)"}</Label>
             <Textarea rows={3} value={customPrompt} onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="Si lo dejas vacío, la AI creará la escena a partir del contenido del artículo." data-testid="ai-illustrate-prompt" />
+              placeholder={refPreview ? "Ej: fondo más claro, ambiente festivo..." : "Si lo dejas vacío, la AI creará la escena a partir del contenido del artículo."} data-testid="ai-illustrate-prompt" />
           </div>
           <Button type="button" onClick={gen} disabled={busy} data-testid="ai-illustrate-run">
-            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ImageIcon className="mr-2 h-4 w-4" />} Generar imagen
+            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ImageIcon className="mr-2 h-4 w-4" />} {result ? "Generar otra" : "Generar imagen"}
           </Button>
           <p className="text-xs text-muted-foreground">Puede tardar hasta 1 minuto.</p>
+
+          {result && (
+            <div className="rounded-lg border border-border p-3 space-y-3" data-testid="ai-result-block">
+              <img src={mediaUrl(result.url)} alt="resultado" className="w-full rounded-md object-contain max-h-64" data-testid="ai-result-preview" />
+              <div>
+                <Label className="mb-1.5 block">¿Cambiar algo? Descríbelo y la AI reeditará esta imagen</Label>
+                <div className="flex gap-2">
+                  <Input value={editInstruction} onChange={(e) => setEditInstruction(e.target.value)}
+                    placeholder="Ej: cámbiale el fondo a un parque, que sea de noche..." data-testid="ai-edit-instruction" />
+                  <Button type="button" onClick={reedit} disabled={busy || !editInstruction.trim()} data-testid="ai-edit-run">
+                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Reeditar"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

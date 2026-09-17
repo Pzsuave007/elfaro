@@ -2,7 +2,7 @@
 import os
 import json
 import base64
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
@@ -346,11 +346,71 @@ STYLE_PREFIX = {
 }
 
 
+async def _store_generated(data: bytes, user: dict) -> dict:
+    """Comprime a WebP, guarda en media y devuelve {url, path}."""
+    from storage import put_object, compress_image
+    c_data, c_type, c_ext = compress_image(data)
+    if c_type:
+        data, ext, ctype = c_data, "webp", "image/webp"
+    else:
+        ext, ctype = "png", "image/png"
+    path = f"elforo-oregon/ai-images/{user['id']}/{new_id()}.{ext}"
+    result = put_object(path, data, ctype)
+    doc = {"id": new_id(), "storage_path": result["path"], "original_filename": f"ai-generada.{ext}",
+           "content_type": ctype, "size": result.get("size", len(data)), "kind": "image",
+           "uploaded_by": user["id"], "is_deleted": False, "ai_generated": True, "created_at": now_iso()}
+    await db.media.insert_one(doc)
+    return {"url": f"/api/media/file/{result['path']}", "path": result["path"]}
+
+
+def _to_png(data: bytes, max_width: int = 1536) -> bytes:
+    """Normaliza cualquier imagen subida a PNG (formato que acepta gpt-image-1 edits)."""
+    import io
+    from PIL import Image
+    img = Image.open(io.BytesIO(data))
+    if img.mode not in ("RGB", "RGBA"):
+        img = img.convert("RGBA")
+    if img.width > max_width:
+        new_h = int(img.height * (max_width / img.width))
+        img = img.resize((max_width, new_h), Image.LANCZOS)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return buf.getvalue()
+
+
+async def _edit_and_store(styled_prompt: str, image_png: bytes, user: dict, size: str = "auto") -> dict:
+    """Edita una imagen de referencia con gpt-image-1 (imagen -> imagen) usando la clave de OpenAI del usuario."""
+    import asyncio, requests
+    key = (os.environ.get("OPENAI_API_KEY") or "").strip()
+    if not key or key.startswith("sk-emergent-"):
+        raise HTTPException(status_code=400, detail="La edición con imagen de referencia requiere tu propia clave de OpenAI (OPENAI_API_KEY).")
+
+    def _do():
+        files = {"image": ("ref.png", image_png, "image/png")}
+        form = {"model": "gpt-image-1", "prompt": styled_prompt, "size": size, "quality": "medium", "n": "1"}
+        r = requests.post("https://api.openai.com/v1/images/edits",
+                          headers={"Authorization": f"Bearer {key}"}, files=files, data=form, timeout=180)
+        r.raise_for_status()
+        return r.json()
+
+    try:
+        resp = await asyncio.to_thread(_do)
+        out = base64.b64decode(resp["data"][0]["b64_json"])
+    except Exception as e:
+        msg = str(e)
+        if hasattr(e, "response") and getattr(e, "response", None) is not None:
+            try:
+                msg = e.response.json().get("error", {}).get("message", msg)
+            except Exception:
+                pass
+        raise HTTPException(status_code=502, detail=f"Error al editar imagen: {msg[:200]}")
+    return await _store_generated(out, user)
+
+
 async def _gen_and_store(styled_prompt: str, user: dict, size: str = "1536x1024") -> str:
     import asyncio, requests
     from litellm import image_generation
     from emergentintegrations.llm.utils import get_integration_proxy_url
-    from storage import put_object, compress_image
     key = _get_ai_key()
     if not key:
         raise HTTPException(status_code=500, detail="No hay clave de AI configurada")
@@ -369,19 +429,8 @@ async def _gen_and_store(styled_prompt: str, user: dict, size: str = "1536x1024"
             raise Exception("Formato de imagen inesperado")
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Error al generar imagen: {str(e)[:200]}")
-    # Comprime a WebP para que la imagen cargue rápido (PNG de gpt-image-1 pesa ~3 MB).
-    c_data, c_type, c_ext = compress_image(data)
-    if c_type:
-        data, ext, ctype = c_data, "webp", "image/webp"
-    else:
-        ext, ctype = "png", "image/png"
-    path = f"elforo-oregon/ai-images/{user['id']}/{new_id()}.{ext}"
-    result = put_object(path, data, ctype)
-    doc = {"id": new_id(), "storage_path": result["path"], "original_filename": f"ai-generada.{ext}",
-           "content_type": ctype, "size": result.get("size", len(data)), "kind": "image",
-           "uploaded_by": user["id"], "is_deleted": False, "ai_generated": True, "created_at": now_iso()}
-    await db.media.insert_one(doc)
-    return f"/api/media/file/{result['path']}"
+    stored = await _store_generated(data, user)
+    return stored["url"]
 
 
 @ai_router.post("/image")
@@ -416,3 +465,61 @@ async def illustrate(req: IllustrateRequest, user: dict = Depends(get_current_us
     prefix = STYLE_PREFIX.get(req.style, STYLE_PREFIX["comic"])
     url = await _gen_and_store(prefix + scene, user)
     return {"url": url, "prompt": scene}
+
+
+REF_INSTRUCTIONS = {
+    "comic": ("Recreate the SAME scene, people, poses, clothing and composition as the provided reference photo, "
+              "but redrawn in the comic-book style described above. Keep faces and likeness as close to the reference "
+              "as possible."),
+    "illustration": ("Recreate the SAME scene, people, poses and composition as the provided reference photo in the "
+                     "flat editorial illustration style described above. Keep the likeness close to the reference."),
+    "photo": ("Enhance/restyle the provided reference photo as a clean documentary editorial photograph. Keep the same "
+              "scene, people, poses and composition; improve lighting and clarity."),
+}
+
+
+@ai_router.post("/illustrate-from-image")
+async def illustrate_from_image(
+    file: UploadFile = File(...),
+    style: str = Form("comic"),
+    custom_prompt: str = Form(""),
+    user: dict = Depends(get_current_user),
+):
+    """Convierte/estiliza la imagen de referencia subida a cómic/ilustración/foto (imagen -> imagen)."""
+    raw = await file.read()
+    if not raw:
+        raise HTTPException(status_code=400, detail="No se recibió ninguna imagen")
+    try:
+        png = _to_png(raw)
+    except Exception:
+        raise HTTPException(status_code=400, detail="No se pudo leer la imagen. Usa JPG, PNG o WebP.")
+    prefix = STYLE_PREFIX.get(style, STYLE_PREFIX["comic"])
+    ref = REF_INSTRUCTIONS.get(style, REF_INSTRUCTIONS["comic"])
+    extra = f" Additional editor instructions: {custom_prompt.strip()}." if custom_prompt.strip() else ""
+    styled = prefix + ref + extra
+    return await _edit_and_store(styled, png, user)
+
+
+class EditImageRequest(BaseModel):
+    path: str          # storage_path de una imagen ya generada/guardada
+    instruction: str
+    style: Optional[str] = None
+
+
+@ai_router.post("/edit-image")
+async def edit_image(req: EditImageRequest, user: dict = Depends(get_current_user)):
+    """Reedita una imagen ya generada según una instrucción (p.ej. 'cambia el fondo a un parque')."""
+    if not (req.instruction or "").strip():
+        raise HTTPException(status_code=400, detail="Escribe qué quieres cambiar")
+    from storage import get_object
+    try:
+        data, _ctype = get_object(req.path)
+        png = _to_png(data)
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=404, detail="No se encontró la imagen a editar")
+    prefix = STYLE_PREFIX.get(req.style, "") if req.style else ""
+    styled = (prefix + "Edit the provided image keeping the overall scene and style, applying ONLY this change: "
+              + req.instruction.strip() + " No text, no words, no logos, no watermarks.").strip()
+    return await _edit_and_store(styled, png, user)

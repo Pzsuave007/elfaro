@@ -76,3 +76,9 @@ admin@elforo.org / ForoOregon2026 (super_admin). See /app/memory/test_credential
 - Verificado que la clave actual sk-emergent-eEbDa9fBf2b61E3F28 funciona: storage init=200 y Gemini googleSearch devuelve contenido + citas.
 - repair.sh [3b/7] ahora SIEMPRE sobrescribe la clave (ya no conserva la existente aunque "parezca" válida).
 - repair.sh [7/7] ahora reintenta 12x (curl --max-time 8, sleep 3) para no dar FAIL falso por restart lento.
+
+## Feature (Jun 2026) — Ilustrar desde imagen de referencia + reedición
+- Backend ai.py: nuevos endpoints POST /api/ai/illustrate-from-image (multipart: file, style, custom_prompt) convierte una foto subida a comic/ilustracion/foto con gpt-image-1 EDITS (images/edits) usando la clave OpenAI del usuario; y POST /api/ai/edit-image (JSON: path, instruction, style) reedita una imagen ya generada. Refactor: _store_generated() y _to_png(), _edit_and_store().
+- Frontend ContentEditor.jsx (AIImageButton): boton "Subir imagen de referencia" + preview; tras generar muestra el resultado con input "Cambiar algo?" para reeditar. Endpoints devuelven {url, path}.
+- Requiere OPENAI_API_KEY (clave del usuario). NO probable en preview (preview no tiene clave OpenAI) — verificado que el flujo llega y devuelve errores correctos; UI verificada por screenshot. El usuario prueba el happy-path en su VPS.
+- Build de produccion reconstruido con URL relativa.
