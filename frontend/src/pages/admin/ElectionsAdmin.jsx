@@ -1,117 +1,119 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Vote, Users, Pencil, Trash2 } from "lucide-react";
+import { Plus, Users, Pencil, Trash2, Vote } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 
 export default function ElectionsAdmin() {
-  const [elections, setElections] = useState([]);
+  const [election, setElection] = useState(null);
   const [races, setRaces] = useState([]);
   const [raceTypes, setRaceTypes] = useState([]);
-  const [elForm, setElForm] = useState({ name: "", year: 2026, date: "", description: "", status: "active" });
-  const [raceForm, setRaceForm] = useState({ election_id: "", title: "", race_type: "", district: "", description: "" });
-  const [elOpen, setElOpen] = useState(false);
+  const [raceForm, setRaceForm] = useState({ title: "", race_type: "", district: "" });
   const [raceOpen, setRaceOpen] = useState(false);
+  const ensuredRef = useRef(false);
   const navigate = useNavigate();
 
-  const load = () => {
-    api.get("/admin/elections").then((r) => setElections(r.data));
-    api.get("/admin/races").then((r) => setRaces(r.data));
+  const load = async () => {
+    const [e, r] = await Promise.all([api.get("/admin/elections"), api.get("/admin/races")]);
+    let els = e.data || [];
+    if (els.length === 0 && !ensuredRef.current) {
+      ensuredRef.current = true;
+      await api.post("/admin/elections", { name: "Elecciones 2026", year: 2026, date: "2026-11-03", status: "active" });
+      return load();
+    }
+    const def = els[0] || null;
+    setElection(def);
+    setRaces((r.data || []).filter((x) => !def || x.election_id === def.id));
   };
-  useEffect(() => { load(); api.get("/config/races").then((r) => setRaceTypes(r.data.race_types)); }, []);
 
-  const createElection = async () => {
-    if (!elForm.name) return toast.error("Nombre requerido");
-    await api.post("/admin/elections", elForm); toast.success("Elección creada"); setElOpen(false);
-    setElForm({ name: "", year: 2026, date: "", description: "", status: "active" }); load();
-  };
+  useEffect(() => {
+    load();
+    api.get("/config/races").then((r) => setRaceTypes(r.data.race_types || []));
+  }, []);
+
   const createRace = async () => {
-    if (!raceForm.title || !raceForm.election_id) return toast.error("Título y elección requeridos");
-    await api.post("/admin/races", raceForm); toast.success("Carrera creada"); setRaceOpen(false);
-    setRaceForm({ election_id: "", title: "", race_type: "", district: "", description: "" }); load();
+    if (!raceForm.title.trim()) return toast.error("Escribe el cargo (ej. Gobernador)");
+    if (!election) return toast.error("Cargando elección, intenta de nuevo");
+    await api.post("/admin/races", { ...raceForm, election_id: election.id });
+    toast.success("Cargo creado");
+    setRaceOpen(false);
+    setRaceForm({ title: "", race_type: "", district: "" });
+    load();
   };
-  const delRace = async (id) => { await api.delete(`/admin/races/${id}`); toast.success("Eliminada"); load(); };
-  const delElection = async (id) => { await api.delete(`/admin/elections/${id}`); toast.success("Eliminada"); load(); };
+  const delRace = async (id) => {
+    if (!window.confirm("¿Eliminar este cargo y sus candidatos?")) return;
+    await api.delete(`/admin/races/${id}`);
+    toast.success("Eliminado");
+    load();
+  };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-3xl font-bold" data-testid="elections-admin-title">Elecciones</h1>
-        <div className="flex gap-2">
-          <Dialog open={elOpen} onOpenChange={setElOpen}>
-            <DialogTrigger asChild><Button variant="outline" data-testid="new-election-btn"><Plus className="mr-2 h-4 w-4" /> Elección</Button></DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>Nueva elección</DialogTitle></DialogHeader>
-              <div className="space-y-3">
-                <div><Label>Nombre</Label><Input value={elForm.name} onChange={(e) => setElForm({ ...elForm, name: e.target.value })} data-testid="election-name" /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><Label>Año</Label><Input type="number" value={elForm.year} onChange={(e) => setElForm({ ...elForm, year: Number(e.target.value) })} /></div>
-                  <div><Label>Fecha</Label><Input value={elForm.date} onChange={(e) => setElForm({ ...elForm, date: e.target.value })} placeholder="2026-11-03" /></div>
-                </div>
-                <div><Label>Descripción</Label><Textarea value={elForm.description} onChange={(e) => setElForm({ ...elForm, description: e.target.value })} /></div>
+    <div className="max-w-4xl mx-auto">
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div>
+          <h1 className="font-serif text-3xl font-bold flex items-center gap-2" data-testid="elections-admin-title">
+            <Vote className="h-7 w-7 text-primary" /> {election?.name || "Elecciones"}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">Agrega los cargos en disputa y sus candidatos. La información se llena fácil con AI.</p>
+        </div>
+        <Dialog open={raceOpen} onOpenChange={setRaceOpen}>
+          <DialogTrigger asChild>
+            <Button data-testid="new-race-btn" className="shrink-0"><Plus className="mr-2 h-4 w-4" /> Agregar cargo</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Nuevo cargo en disputa</DialogTitle>
+              <DialogDescription>Ejemplos: Gobernador de Oregon, Alcalde de Salem, Senado Distrito 3.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div>
+                <Label className="mb-1.5 block">Cargo *</Label>
+                <Input value={raceForm.title} onChange={(e) => setRaceForm({ ...raceForm, title: e.target.value })}
+                  placeholder="Ej. Gobernador de Oregon" data-testid="race-title" />
               </div>
-              <DialogFooter><Button onClick={createElection} data-testid="save-election">Crear</Button></DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Dialog open={raceOpen} onOpenChange={setRaceOpen}>
-            <DialogTrigger asChild><Button data-testid="new-race-btn"><Plus className="mr-2 h-4 w-4" /> Carrera</Button></DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>Nueva carrera electoral</DialogTitle></DialogHeader>
-              <div className="space-y-3">
-                <div><Label>Elección</Label>
-                  <Select value={raceForm.election_id} onValueChange={(v) => setRaceForm({ ...raceForm, election_id: v })}>
-                    <SelectTrigger data-testid="race-election"><SelectValue placeholder="Selecciona" /></SelectTrigger>
-                    <SelectContent>{elections.map((e) => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}</SelectContent>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="mb-1.5 block">Tipo</Label>
+                  <Select value={raceForm.race_type} onValueChange={(v) => setRaceForm({ ...raceForm, race_type: v })}>
+                    <SelectTrigger data-testid="race-type"><SelectValue placeholder="Tipo" /></SelectTrigger>
+                    <SelectContent>{raceTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div><Label>Título</Label><Input value={raceForm.title} onChange={(e) => setRaceForm({ ...raceForm, title: e.target.value })} data-testid="race-title" /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><Label>Tipo</Label>
-                    <Select value={raceForm.race_type} onValueChange={(v) => setRaceForm({ ...raceForm, race_type: v })}>
-                      <SelectTrigger><SelectValue placeholder="Tipo" /></SelectTrigger>
-                      <SelectContent>{raceTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </div>
-                  <div><Label>Distrito</Label><Input value={raceForm.district} onChange={(e) => setRaceForm({ ...raceForm, district: e.target.value })} /></div>
+                <div>
+                  <Label className="mb-1.5 block">Distrito (opcional)</Label>
+                  <Input value={raceForm.district} onChange={(e) => setRaceForm({ ...raceForm, district: e.target.value })} placeholder="Ej. Distrito 3" />
                 </div>
-                <div><Label>Descripción</Label><Textarea value={raceForm.description} onChange={(e) => setRaceForm({ ...raceForm, description: e.target.value })} /></div>
               </div>
-              <DialogFooter><Button onClick={createRace} data-testid="save-race">Crear</Button></DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+            </div>
+            <DialogFooter><Button onClick={createRace} data-testid="save-race">Crear cargo</Button></DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {elections.length === 0 && <p className="text-muted-foreground">No hay elecciones. Crea la primera.</p>}
-      {elections.map((el) => (
-        <div key={el.id} className="mb-8 rounded-xl border border-border bg-card p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="font-serif text-xl font-bold flex items-center gap-2"><Vote className="h-5 w-5 text-primary" /> {el.name} <span className="text-sm font-normal text-muted-foreground">({el.date})</span></h2>
-            <Button variant="ghost" size="icon" onClick={() => delElection(el.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {races.length === 0 && (
+          <div className="sm:col-span-2 rounded-xl border border-dashed border-border p-8 text-center text-muted-foreground" data-testid="races-empty">
+            Aún no hay cargos. Haz clic en <strong>“Agregar cargo”</strong> para empezar (ej. Gobernador).
           </div>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-            {races.filter((r) => r.election_id === el.id).map((race) => (
-              <div key={race.id} className="flex items-center justify-between rounded-lg border border-border p-4" data-testid={`admin-race-${race.id}`}>
-                <div>
-                  <p className="font-medium">{race.title}</p>
-                  <p className="text-xs text-muted-foreground">{race.race_type} · <Users className="inline h-3 w-3" /> {race.candidate_count} candidatos · {(race.questions || []).length} preguntas</p>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => navigate(`/admin/races/${race.id}`)} data-testid={`edit-race-${race.id}`}><Pencil className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" onClick={() => delRace(race.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                </div>
-              </div>
-            ))}
-            {races.filter((r) => r.election_id === el.id).length === 0 && <p className="text-sm text-muted-foreground">Sin carreras todavía.</p>}
+        )}
+        {races.map((race) => (
+          <div key={race.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-4" data-testid={`admin-race-${race.id}`}>
+            <button onClick={() => navigate(`/admin/races/${race.id}`)} className="text-left flex-1 min-w-0">
+              <p className="font-medium truncate">{race.title}</p>
+              <p className="text-xs text-muted-foreground">{[race.race_type, race.district].filter(Boolean).join(" · ")}{(race.race_type || race.district) ? " · " : ""}<Users className="inline h-3 w-3" /> {race.candidate_count} candidatos</p>
+            </button>
+            <div className="flex gap-1 shrink-0">
+              <Button variant="ghost" size="icon" onClick={() => navigate(`/admin/races/${race.id}`)} data-testid={`edit-race-${race.id}`}><Pencil className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => delRace(race.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

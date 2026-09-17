@@ -101,12 +101,20 @@ export default function CandidateEditor() {
       <h1 className="font-serif text-3xl font-bold">{isNew ? "Nuevo candidato" : "Editar candidato"}</h1>
       <p className="text-sm text-muted-foreground">Todos los candidatos usan exactamente el mismo formato. Información neutral.</p>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={researchAI} disabled={aiBusy}
-          className="border-primary/40 text-primary" data-testid="candidate-ai-research">
-          {aiBusy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1.5 h-4 w-4" />} Investigar con AI
-        </Button>
-        <span className="text-xs text-muted-foreground">Escribe el nombre y la AI propone bio, experiencia, prioridades y respuestas. Verifica antes de publicar.</span>
+      <div className="mt-5 rounded-xl border border-primary/30 bg-primary/5 p-4" data-testid="candidate-ai-box">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <Label className="mb-1.5 block flex items-center gap-1.5 font-serif text-base font-bold text-primary">
+              <Sparkles className="h-4 w-4" /> Llena todo con AI
+            </Label>
+            <Input value={c.name} onChange={(e) => upd("name", e.target.value)}
+              placeholder="Escribe el nombre completo del candidato" data-testid="candidate-name-ai" />
+            <p className="mt-1.5 text-xs text-muted-foreground">La AI busca datos públicos y completa biografía, experiencia, partido, prioridades y respuestas. Tú revisas y guardas.</p>
+          </div>
+          <Button type="button" size="lg" onClick={researchAI} disabled={aiBusy} className="shrink-0" data-testid="candidate-ai-research">
+            {aiBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />} Investigar con AI
+          </Button>
+        </div>
       </div>
 
       <div className="mt-6 space-y-4">
