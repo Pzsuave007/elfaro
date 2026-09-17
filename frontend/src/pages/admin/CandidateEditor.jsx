@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, Upload, Plus, X } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Upload, Plus, X, Sparkles } from "lucide-react";
 import { api, mediaUrl } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,45 @@ export default function CandidateEditor() {
   const upd = (k, v) => setC((p) => ({ ...p, [k]: v }));
   const setAnswer = (qid, v) => setC((p) => ({ ...p, answers: { ...p.answers, [qid]: v } }));
 
+  const [aiBusy, setAiBusy] = useState(false);
+  const researchAI = async () => {
+    if (!c.name?.trim()) return toast.error("Escribe el nombre del candidato primero");
+    setAiBusy(true);
+    try {
+      const { data } = await api.post("/ai/research-candidate", {
+        name: c.name,
+        race_title: race.title,
+        race_type: race.race_type,
+        district: race.district || c.district,
+        questions: (race.questions || []).map((q) => q.text),
+      });
+      const f = data.fields || {};
+      setC((prev) => {
+        const next = { ...prev };
+        if (f.party && !prev.party) next.party = f.party;
+        if (f.bio && !prev.bio) next.bio = f.bio;
+        if (f.experience && !prev.experience) next.experience = f.experience;
+        if (f.campaign_info && !prev.campaign_info) next.campaign_info = f.campaign_info;
+        if (f.website && !prev.website) next.website = f.website;
+        if (f.twitter && !prev.socials?.twitter) next.socials = { ...(prev.socials || {}), twitter: f.twitter };
+        if ((data.priorities || []).length && !(prev.priorities || []).some((p) => p.trim())) next.priorities = data.priorities;
+        const qs = race.questions || [];
+        const ans = data.answers || [];
+        const newAnswers = { ...(prev.answers || {}) };
+        qs.forEach((q, i) => { if (ans[i] && !newAnswers[q.id]) newAnswers[q.id] = ans[i]; });
+        next.answers = newAnswers;
+        if ((data.sources || []).length) {
+          const seen = new Set((prev.sources || []).map((s) => s.url));
+          next.sources = [...(prev.sources || []), ...data.sources.filter((s) => s.url && !seen.has(s.url))].slice(0, 8);
+        }
+        next.used_ai = true;
+        return next;
+      });
+      toast.success("Información propuesta por AI. Revísala y verifica antes de publicar.");
+    } catch (e) { toast.error(e.response?.data?.detail || "Error al investigar"); }
+    finally { setAiBusy(false); }
+  };
+
   const save = async () => {
     if (!c.name) return toast.error("Nombre requerido");
     try {
@@ -61,6 +100,14 @@ export default function CandidateEditor() {
       <button onClick={() => navigate(`/admin/races/${raceId}`)} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mb-4"><ArrowLeft className="h-4 w-4" /> {race.title}</button>
       <h1 className="font-serif text-3xl font-bold">{isNew ? "Nuevo candidato" : "Editar candidato"}</h1>
       <p className="text-sm text-muted-foreground">Todos los candidatos usan exactamente el mismo formato. Información neutral.</p>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <Button type="button" variant="outline" size="sm" onClick={researchAI} disabled={aiBusy}
+          className="border-primary/40 text-primary" data-testid="candidate-ai-research">
+          {aiBusy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1.5 h-4 w-4" />} Investigar con AI
+        </Button>
+        <span className="text-xs text-muted-foreground">Escribe el nombre y la AI propone bio, experiencia, prioridades y respuestas. Verifica antes de publicar.</span>
+      </div>
 
       <div className="mt-6 space-y-4">
         <div><Label className="mb-1.5 block">Foto</Label><PhotoUpload value={c.photo} onChange={(v) => upd("photo", v)} /></div>

@@ -4,6 +4,7 @@ import { Clock, User, ArrowLeft } from "lucide-react";
 import { api, mediaUrl, formatDate } from "@/lib/api";
 import { CategoryBadge, TypeTag, DemoBadge, Sources, Corrections, ArticleCard } from "@/components/shared";
 import { SponsorAd } from "@/components/Sponsors";
+import { VideoEmbed } from "@/components/VideoEmbed";
 
 function Body({ text }) {
   if (!text) return null;
@@ -53,6 +54,12 @@ export default function ArticleDetail() {
       {item.featured_image && (
         <div className="max-w-5xl mx-auto px-4 sm:px-6 my-8">
           <img src={mediaUrl(item.featured_image)} alt={item.title} className="w-full rounded-xl aspect-[16/9] object-cover" />
+        </div>
+      )}
+
+      {item.video_url && (
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <VideoEmbed url={item.video_url} title={item.title} />
         </div>
       )}
 

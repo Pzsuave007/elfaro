@@ -4,7 +4,7 @@ import json
 import base64
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from core import now_iso, new_id, db
 from auth import get_current_user
@@ -523,3 +523,71 @@ async def edit_image(req: EditImageRequest, user: dict = Depends(get_current_use
     styled = (prefix + "Edit the provided image keeping the overall scene and style, applying ONLY this change: "
               + req.instruction.strip() + " No text, no words, no logos, no watermarks.").strip()
     return await _edit_and_store(styled, png, user)
+
+
+# ---------- Investigar candidato (auto-rellena el editor de candidatos) ----------
+class CandidateResearchRequest(BaseModel):
+    name: str
+    race_title: Optional[str] = ""
+    race_type: Optional[str] = ""
+    district: Optional[str] = ""
+    questions: List[str] = []
+    instructions: Optional[str] = ""
+
+
+def _norm_text(v):
+    if isinstance(v, list):
+        return "\n".join(str(x) for x in v)
+    if isinstance(v, dict):
+        return "\n".join(f"{k}: {vv}" for k, vv in v.items())
+    if v is None:
+        return ""
+    return str(v).replace("**", "").strip()
+
+
+@ai_router.post("/research-candidate")
+async def research_candidate(req: CandidateResearchRequest, user: dict = Depends(get_current_user)):
+    """Investiga datos públicos de un candidato y devuelve campos para auto-rellenar el editor. Neutral, sin inventar."""
+    if not (req.name or "").strip():
+        raise HTTPException(status_code=400, detail="Escribe el nombre del candidato")
+    qs = [q for q in (req.questions or []) if q and q.strip()]
+    q_block = ""
+    if qs:
+        listed = "\n".join(f"{i + 1}. {q}" for i, q in enumerate(qs))
+        q_block = ("\n\nAdemás, para CADA una de estas preguntas redacta una respuesta NEUTRAL y factual basada SOLO en "
+                   "posiciones públicas verificables del candidato. Si NO encuentras su postura pública para una pregunta, "
+                   "deja esa respuesta como cadena vacía \"\" (NUNCA inventes su opinión). Devuelve las respuestas EN EL "
+                   "MISMO ORDEN de las preguntas.\nPreguntas:\n" + listed)
+    extra = f" Datos/instrucciones del editor: {req.instructions}." if req.instructions else ""
+    who = f"{req.name}, candidato/a a {req.race_title or 'un cargo'} ({req.race_type or ''} {req.district or ''}) en Oregon"
+    prompt = (f"Investiga información REAL, pública y verificable sobre {who}.{extra}\n\n"
+              f"Reúne SOLO datos que aparezcan en fuentes reales (sitio oficial de campaña, páginas de gobierno, noticias, "
+              f"perfiles verificados). NUNCA inventes datos, cifras, cargos ni posturas. Si un dato no lo encuentras con "
+              f"certeza, déjalo VACÍO. Mantén un tono NO partidista y no declares quién es mejor.\n\n"
+              f"Responde SOLO con JSON con esta forma exacta:\n"
+              f'{{"party":"","bio":"(2-4 oraciones, biografía neutral)","experience":"(trayectoria y experiencia relevante)",'
+              f'"campaign_info":"(información de campaña si existe)","website":"(URL del sitio oficial si la conoces)",'
+              f'"twitter":"(usuario o URL de red social si la conoces)","priorities":["","",""],"answers":[]}}'
+              f"{q_block}")
+    content, cites = await _run_grounded(EDITORIAL_SYSTEM_PROMPT, prompt)
+    data = _parse_json(content)
+    if not isinstance(data, dict):
+        data = {}
+    fields = {
+        "party": _norm_text(data.get("party")),
+        "bio": _norm_text(data.get("bio")),
+        "experience": _norm_text(data.get("experience")),
+        "campaign_info": _norm_text(data.get("campaign_info")),
+        "website": _norm_text(data.get("website")),
+        "twitter": _norm_text(data.get("twitter")),
+    }
+    priorities = data.get("priorities") or []
+    if isinstance(priorities, str):
+        priorities = [p.strip() for p in priorities.split("\n")]
+    priorities = [_norm_text(p) for p in priorities if _norm_text(p)]
+    answers = data.get("answers") or []
+    if not isinstance(answers, list):
+        answers = []
+    import re as _re
+    answers = [_re.sub(r"^\s*\d+[\.\)]\s*", "", _norm_text(a)) for a in answers]
+    return {"fields": fields, "priorities": priorities, "answers": answers, "sources": cites}

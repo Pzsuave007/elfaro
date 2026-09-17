@@ -20,6 +20,7 @@ export const SCHEMAS = {
     { name: "reading_time", label: "Tiempo de lectura (min)", type: "number" },
     { name: "author", label: "Autor", type: "text" },
     { name: "featured_image", label: "Imagen destacada", type: "image", span: 2 },
+    { name: "video_url", label: "Video de YouTube (opcional)", type: "video", span: 2 },
     { name: "body", label: "Contenido", type: "textarea", span: 2, big: true, ai: true },
     { name: "tags", label: "Tags (separados por coma)", type: "tags", span: 2 },
     { name: "featured", label: "Destacar en portada", type: "checkbox" },
@@ -50,6 +51,7 @@ export const SCHEMAS = {
     { name: "last_verified", label: "Última verificación (fecha)", type: "text" },
     { name: "official_source", label: "Fuente oficial (URL)", type: "text", span: 2 },
     { name: "featured_image", label: "Imagen", type: "image", span: 2 },
+    { name: "video_url", label: "Video de YouTube (opcional)", type: "video", span: 2 },
     { name: "sources", label: "Fuentes", type: "sources", span: 2 },
   ],
   "oregon-info": [
@@ -64,6 +66,7 @@ export const SCHEMAS = {
     { name: "official_source", label: "Fuente oficial (URL)", type: "text", span: 2 },
     { name: "body", label: "Contenido adicional", type: "textarea", span: 2, big: true },
     { name: "featured_image", label: "Imagen", type: "image", span: 2 },
+    { name: "video_url", label: "Video de YouTube (opcional)", type: "video", span: 2 },
     { name: "sources", label: "Fuentes", type: "sources", span: 2 },
   ],
   places: [
@@ -84,6 +87,7 @@ export const SCHEMAS = {
     { name: "official_source", label: "Sitio oficial (URL)", type: "text", span: 2 },
     { name: "featured_image", label: "Imagen principal", type: "image", span: 2 },
     { name: "gallery", label: "Galería", type: "gallery", span: 2 },
+    { name: "video_url", label: "Video de YouTube (opcional)", type: "video", span: 2 },
     { name: "sources", label: "Fuentes", type: "sources", span: 2 },
   ],
   sponsors: [

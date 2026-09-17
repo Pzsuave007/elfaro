@@ -4,6 +4,7 @@ import { ArrowLeft, MapPin, Clock, DollarSign, Accessibility, Car, ExternalLink 
 import { api, mediaUrl } from "@/lib/api";
 import { CategoryBadge, DemoBadge, Sources } from "@/components/shared";
 import { SponsorAd } from "@/components/Sponsors";
+import { VideoEmbed } from "@/components/VideoEmbed";
 import { Button } from "@/components/ui/button";
 
 function Info({ icon: Icon, label, value }) {
@@ -58,6 +59,8 @@ export default function PlaceDetail() {
           )}
         </div>
       )}
+
+      {item.video_url && <VideoEmbed url={item.video_url} title={item.title} />}
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">

@@ -4,6 +4,7 @@ import { ArrowLeft, RefreshCw, Users, CalendarClock, ListChecks, ExternalLink } 
 import { api, mediaUrl, formatDate } from "@/lib/api";
 import { CategoryBadge, DemoBadge, Sources } from "@/components/shared";
 import { SponsorAd } from "@/components/Sponsors";
+import { VideoEmbed } from "@/components/VideoEmbed";
 import { Button } from "@/components/ui/button";
 
 const BLOCKS = [
@@ -41,6 +42,8 @@ export default function OregonInfoDetail() {
       <p className="mt-2 text-sm text-muted-foreground">Última actualización: {formatDate(item.published_at)}</p>
 
       {item.featured_image && <img src={mediaUrl(item.featured_image)} alt={item.title} className="mt-6 w-full rounded-xl aspect-[16/9] object-cover" />}
+
+      {item.video_url && <VideoEmbed url={item.video_url} title={item.title} />}
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 min-w-0 space-y-4">

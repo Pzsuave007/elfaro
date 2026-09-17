@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { SCHEMAS, KIND_META } from "@/pages/admin/schemas";
 import { AIAssistant } from "@/components/admin/AIAssistant";
 import { AIResearch } from "@/components/admin/AIResearch";
+import { VideoEmbed, getYouTubeId } from "@/components/VideoEmbed";
 
 const WORKFLOW = [
   { v: "draft", l: "Borrador" }, { v: "needs_review", l: "En revisión" }, { v: "approved", l: "Aprobado" },
@@ -298,6 +299,14 @@ export default function ContentEditor() {
           onChange={(e) => upd(f.name, e.target.value.split(",").map((t) => t.trim()).filter(Boolean))} {...common} />;
       case "sources":
         return <SourcesEditor value={values[f.name]} onChange={(v) => upd(f.name, v)} sourceTypes={config.source_types} />;
+      case "video":
+        return (
+          <div className="space-y-2">
+            <Input value={values[f.name] || ""} onChange={(e) => upd(f.name, e.target.value)}
+              placeholder="Pega el enlace de YouTube, ej: https://www.youtube.com/watch?v=..." {...common} />
+            {getYouTubeId(values[f.name]) && <VideoEmbed url={values[f.name]} />}
+          </div>
+        );
       default:
         return <Input value={values[f.name] || ""} onChange={(e) => upd(f.name, e.target.value)} {...common} />;
     }

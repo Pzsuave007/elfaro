@@ -4,6 +4,7 @@ import { ArrowLeft, Phone, Mail, Globe, MapPin, ExternalLink, ListChecks, FileTe
 import { api, mediaUrl, formatDate, track } from "@/lib/api";
 import { CategoryBadge, DemoBadge, Sources } from "@/components/shared";
 import { SponsorAd } from "@/components/Sponsors";
+import { VideoEmbed } from "@/components/VideoEmbed";
 import { Button } from "@/components/ui/button";
 
 function Row({ icon: Icon, label, value }) {
@@ -46,6 +47,8 @@ export default function ResourceDetail() {
       <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight" data-testid="resource-title">{item.title}</h1>
       {item.organization && <p className="mt-2 text-lg font-medium text-terracotta">{item.organization}</p>}
       {item.summary && <p className="mt-3 text-lg text-muted-foreground">{item.summary}</p>}
+
+      {item.video_url && <VideoEmbed url={item.video_url} title={item.title} />}
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
