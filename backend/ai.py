@@ -294,23 +294,22 @@ async def generate_post(req: GenerateRequest, user: dict = Depends(get_current_u
     ctx = KIND_CONTEXT.get(req.kind, "contenido informativo")
     guide = GEN_GUIDE.get(req.kind, "")
     extra = f" Datos/instrucciones del editor (úsalos como base, no inventes más allá de esto): {req.instructions}." if req.instructions else ""
-    src_line = f"\nFuente encontrada: {sel.get('source','')} {sel.get('source_url','')}" if (sel.get('source') or sel.get('source_url')) else ""
-    if _grounding_ok():
-        lead = "Investiga en la web y crea"
-        real_line = ("Usa información REAL y verificable encontrada en la búsqueda web. Incluye datos concretos (nombres, "
-                     "lugares, fechas, cifras) SOLO si aparecen en fuentes reales. NO inventes nada.")
-    else:
-        lead = "Con base en el tema y tu conocimiento general, crea"
-        real_line = ("Escribe información general clara y útil sobre el tema. Es un BORRADOR: el editor verificará y "
-                     "agregará las fuentes oficiales y los datos específicos antes de publicar. NO inventes cifras exactas, "
-                     "nombres propios de personas, teléfonos, direcciones, fechas exactas ni URLs; si no lo sabes con certeza, déjalo general o vacío.")
-    prompt = (f"{lead} un BORRADOR completo de {ctx} basado en este resultado elegido:\n"
+    src_line = f"\nFuente encontrada (úsala como referencia): {sel.get('source','')} {sel.get('source_url','')}" if (sel.get('source') or sel.get('source_url')) else ""
+    prompt = (f"Con base en el resultado elegido y tu conocimiento general, redacta un BORRADOR completo de {ctx}:\n"
               f"Tema/título: {sel.get('title','')}\nResumen: {sel.get('summary','')}{src_line}\n"
               f"Tema general: {req.topic}.{extra}\n\n"
-              f"{real_line}\n\n{guide}\n\n{NO_INVENT}\n\n"
+              f"Escribe información clara y útil. Es un BORRADOR: el editor verificará y agregará más fuentes y datos "
+              f"específicos antes de publicar. NO inventes cifras exactas, nombres propios de personas, teléfonos, "
+              f"direcciones, fechas exactas ni URLs; si no lo sabes con certeza, déjalo general o vacío.\n\n"
+              f"{guide}\n\n{NO_INVENT}\n\n"
               f"Rellena TODOS los campos posibles con información concreta y útil (sin relleno). "
               f"Responde SOLO con JSON con esta forma exacta:\n{schema}")
-    content, cites = await _run_grounded(EDITORIAL_SYSTEM_PROMPT, prompt)
+    # La redacción la hace el LLM normal (OpenAI del usuario en producción) para NO gastar créditos de Emergent.
+    content = await _run(EDITORIAL_SYSTEM_PROMPT, prompt)
+    cites = []
+    if sel.get("source_url"):
+        cites = [{"name": sel.get("source") or sel.get("source_url"), "url": sel.get("source_url"),
+                  "organization": "", "type": "Web", "date": ""}]
     fields = _parse_json(content)
     if not isinstance(fields, dict):
         fields = {}

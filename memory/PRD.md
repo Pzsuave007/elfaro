@@ -57,6 +57,8 @@ Plataforma web informativa, no partidista y en español para la comunidad hispan
 
 - ✅ Research/generate-post prompts grounding-aware (2026-06): agregado `_grounding_ok()`. /ai/research y /ai/generate-post ahora usan prompt distinto según haya clave Emergent válida: con grounding → "busca en la web, solo datos reales" (Gemini); sin grounding (solo OpenAI del usuario) → pide "enfoques/ángulos desde conocimiento general" y "borrador para verificar", evitando el bloqueo "NO inventes/solo web" que devolvía 0 opciones. Preview (Gemini) verificado: 5 opciones + 5 fuentes. Requiere deploy.
 
+- ✅ Split de costos IA (2026-06): /ai/generate-post ahora redacta el borrador con `_run` (OpenAI del usuario) en vez de `_run_grounded` (Gemini), adjuntando la fuente real (source_url) que trajo /ai/research. Resultado: Emergent/Gemini se usa SOLO en /ai/research (búsqueda web + enlaces); la redacción y las imágenes usan la OPENAI_API_KEY del usuario. Prod necesita AMBAS claves: OPENAI_API_KEY (texto+imágenes) + EMERGENT_LLM_KEY real (solo búsqueda). Verificado flujo completo en preview (research 5 opciones+fuentes → generate-post título+descr 765 chars+1 fuente).
+
 ## Backlog / Remaining (P1/P2)
 - P1: Rich text editor (currently textarea), scheduled auto-publish job, SEO meta tags injection + sitemap.xml/robots.txt served, ballot measures.
 - P2: Newsletter, WhatsApp, push, member accounts, saved articles, English version, "Who Represents Me" + ZIP lookup, PWA. (Architecture ready.)
