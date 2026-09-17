@@ -45,6 +45,32 @@ async def public_candidate(candidate_id: str):
     return c
 
 
+@elections_router.get("/public/candidates")
+async def public_candidates(election_id: Optional[str] = None):
+    """Lista plana de candidatos (con el cargo al que pertenecen) para portada y página de elecciones.
+    Si no se indica election_id, usa la elección más reciente para evitar mezclar elecciones viejas."""
+    if not election_id:
+        latest = await db.elections.find({}, {"_id": 0, "id": 1}).sort("date", -1).to_list(1)
+        if latest:
+            election_id = latest[0]["id"]
+    race_q = {"election_id": election_id} if election_id else {}
+    races = await db.races.find(race_q, {"_id": 0}).to_list(500)
+    rmap = {r["id"]: r for r in races}
+    cand_q = {"race_id": {"$in": list(rmap.keys())}} if election_id else {}
+    cands = await db.candidates.find(cand_q, {"_id": 0}).to_list(500)
+    out = []
+    for c in cands:
+        r = rmap.get(c.get("race_id")) or {}
+        out.append({
+            "id": c["id"], "name": c.get("name", ""), "party": c.get("party", ""),
+            "photo": c.get("photo", ""), "position": c.get("position", ""),
+            "district": c.get("district", ""), "is_demo": c.get("is_demo", False),
+            "race_id": c.get("race_id", ""), "race_title": r.get("title", ""),
+            "race_type": r.get("race_type", ""),
+        })
+    return out
+
+
 # ---------- Admin: Elections ----------
 @elections_router.get("/admin/elections")
 async def admin_elections(user: dict = Depends(get_current_user)):

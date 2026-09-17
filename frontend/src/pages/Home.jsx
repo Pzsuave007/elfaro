@@ -23,6 +23,7 @@ export default function Home() {
   const [oregonInfo, setOregonInfo] = useState([]);
   const [places, setPlaces] = useState([]);
   const [settings, setSettings] = useState(null);
+  const [candidates, setCandidates] = useState([]);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
 
@@ -31,6 +32,7 @@ export default function Home() {
     api.get("/public/oregon-info?limit=3").then((r) => setOregonInfo(r.data.items));
     api.get("/public/places?limit=3").then((r) => setPlaces(r.data.items));
     api.get("/site-settings").then((r) => setSettings(r.data)).catch(() => {});
+    api.get("/public/candidates").then((r) => setCandidates(r.data || [])).catch(() => {});
   }, []);
 
   const submit = (e) => {
@@ -185,17 +187,37 @@ export default function Home() {
 
       {/* ELECCIONES 2026 */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14 sm:py-16" data-testid="section-elecciones">
-        <div className="rounded-2xl border border-border bg-card p-8 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div className="flex items-start gap-4">
             <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Vote className="h-6 w-6" /></span>
             <div>
               <p className="eyebrow mb-1">Elecciones 2026</p>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold">Conoce a los candidatos. Conoce sus propuestas.</h2>
-              <p className="mt-2 text-muted-foreground">Decide por ti mismo. Información neutral y equivalente para todos los candidatos.</p>
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold">Conoce a los candidatos</h2>
+              <p className="mt-2 text-muted-foreground max-w-xl">Información neutral y equivalente para todos. Toca un candidato para ver su perfil y propuestas.</p>
             </div>
           </div>
-          <Link to="/elecciones"><Button size="lg" data-testid="conocer-candidatos-btn"><Landmark className="mr-2 h-4 w-4" /> Conocer a los candidatos</Button></Link>
+          <Link to="/elecciones" className="shrink-0"><Button variant="outline" data-testid="conocer-candidatos-btn"><Landmark className="mr-2 h-4 w-4" /> Comparar propuestas</Button></Link>
         </div>
+
+        {candidates.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="home-candidates">
+            {candidates.slice(0, 8).map((c) => (
+              <Link key={c.id} to={`/elecciones/candidato/${c.id}`} data-testid={`home-candidate-${c.id}`}
+                className="group rounded-xl border border-border bg-card p-5 text-center transition-all hover:shadow-md hover:-translate-y-0.5">
+                {c.photo
+                  ? <img src={mediaUrl(c.photo)} alt={c.name} className="mx-auto h-20 w-20 rounded-full object-cover" />
+                  : <span className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-secondary text-xl font-serif font-bold text-muted-foreground">{(c.name || "?").replace("[DEMO] ", "").charAt(0)}</span>}
+                <h3 className="mt-3 font-serif text-base font-bold leading-tight group-hover:text-primary transition-colors">{(c.name || "").replace("[DEMO] ", "")}</h3>
+                {c.party && <p className="text-xs text-terracotta font-medium mt-0.5">{c.party}</p>}
+                {c.race_title && <p className="text-xs text-muted-foreground mt-1">{c.race_title}</p>}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
+            Pronto publicaremos a los candidatos. <Link to="/elecciones" className="text-primary underline">Más información</Link>
+          </div>
+        )}
       </section>
 
       <SponsorStrip />
