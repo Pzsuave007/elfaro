@@ -65,3 +65,8 @@ Plataforma web informativa, no partidista y en español para la comunidad hispan
 
 ## Test Credentials
 admin@elforo.org / ForoOregon2026 (super_admin). See /app/memory/test_credentials.md.
+
+## Actualización (Jun 2026)
+- Clave de Emergent: repair.sh (paso 3b) ahora inyecta EMERGENT_LLM_KEY (codificada en base64, no en texto plano) al .env de prod si falta o tiene marcador XXXX; conserva claves válidas existentes.
+- frontend/build se había perdido en el fork y no estaba en git → reconstruido con REACT_APP_BACKEND_URL="" (URL relativa /api) para que funcione en www y no-www vía proxy .htaccess. Committeado al repo.
+- IMPORTANTE build prod: usar `REACT_APP_BACKEND_URL="" GENERATE_SOURCEMAP=false yarn build` (el inline var SÍ gana; .env.production vacío NO tuvo precedencia sobre .env). El .env del preview mantiene la URL de preview intacta.
