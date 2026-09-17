@@ -40,25 +40,15 @@ as_user "cp $REPO/backend/*.py $PROD/"
 
 # --- 3b. Asegurar la clave de AI (Emergent) en el .env de produccion ---
 # La clave NO se guarda en texto plano en GitHub: va codificada y el script la
-# escribe en el servidor solo si falta o si aun tiene el marcador (XXXX).
-echo ">>> [3b/7] Asegurando la clave de AI (busqueda web con Gemini)..."
+# escribe SIEMPRE en el servidor (una clave vieja da 401 aunque "parezca" valida).
+echo ">>> [3b/7] Escribiendo la clave de AI (busqueda web con Gemini)..."
 ENVF="$PROD/.env"
 EMK="$(printf '%s' 'c2stZW1lcmdlbnQtZUViRGE5ZkJmMmI2MUUzRjI4' | base64 -d 2>/dev/null)"
 if [ -f "$ENVF" ] && [ -n "$EMK" ]; then
-  CUR="$(grep -E '^EMERGENT_LLM_KEY=' "$ENVF" | head -1 | cut -d= -f2- | tr -d '"')"
-  case "$CUR" in
-    sk-emergent-*XXXX*|"") NEED=1 ;;
-    sk-emergent-*) NEED=0 ;;
-    *) NEED=1 ;;
-  esac
-  if [ "$NEED" = "1" ]; then
-    sed -i '/^EMERGENT_LLM_KEY=/d' "$ENVF"
-    echo "EMERGENT_LLM_KEY=$EMK" >> "$ENVF"
-    chown "$U:$U" "$ENVF"
-    echo "  Clave de Emergent configurada en el servidor."
-  else
-    echo "  Ya habia una clave valida; se conserva."
-  fi
+  sed -i '/^EMERGENT_LLM_KEY=/d' "$ENVF"
+  echo "EMERGENT_LLM_KEY=$EMK" >> "$ENVF"
+  chown "$U:$U" "$ENVF"
+  echo "  Clave de Emergent actualizada en el servidor."
 else
   echo "  (Aviso) No se encontro $ENVF; se omite este paso."
 fi
@@ -97,9 +87,15 @@ else
 fi
 sleep 4
 
-# --- 7. Verificar ---
+# --- 7. Verificar (con reintentos: el backend puede tardar en levantar) ---
 echo ">>> [7/7] Probando el backend..."
-RESP="$(curl -s "http://127.0.0.1:$PORT/api/public/sponsors")"
+RESP=""
+for i in $(seq 1 12); do
+  RESP="$(curl -s --max-time 8 "http://127.0.0.1:$PORT/api/public/sponsors")"
+  echo "$RESP" | grep -q '"items"' && break
+  echo "  intento $i/12: aun no responde, esperando..."
+  sleep 3
+done
 echo "  Respuesta: $RESP"
 echo ""
 if echo "$RESP" | grep -q '"items"'; then

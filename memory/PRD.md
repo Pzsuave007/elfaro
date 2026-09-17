@@ -70,3 +70,9 @@ admin@elforo.org / ForoOregon2026 (super_admin). See /app/memory/test_credential
 - Clave de Emergent: repair.sh (paso 3b) ahora inyecta EMERGENT_LLM_KEY (codificada en base64, no en texto plano) al .env de prod si falta o tiene marcador XXXX; conserva claves válidas existentes.
 - frontend/build se había perdido en el fork y no estaba en git → reconstruido con REACT_APP_BACKEND_URL="" (URL relativa /api) para que funcione en www y no-www vía proxy .htaccess. Committeado al repo.
 - IMPORTANTE build prod: usar `REACT_APP_BACKEND_URL="" GENERATE_SOURCEMAP=false yarn build` (el inline var SÍ gana; .env.production vacío NO tuvo precedencia sobre .env). El .env del preview mantiene la URL de preview intacta.
+
+## Corrección (Jun 2026) — causa raíz del 401 y "sin opciones"
+- El VPS tenía una clave EMERGENT_LLM_KEY VIEJA/caduca (formato válido pero 401 Unauthorized en objstore/init y en Gemini grounding). Por eso fallaba storage y "Investigar con AI" devolvía options=[].
+- Verificado que la clave actual sk-emergent-eEbDa9fBf2b61E3F28 funciona: storage init=200 y Gemini googleSearch devuelve contenido + citas.
+- repair.sh [3b/7] ahora SIEMPRE sobrescribe la clave (ya no conserva la existente aunque "parezca" válida).
+- repair.sh [7/7] ahora reintenta 12x (curl --max-time 8, sleep 3) para no dar FAIL falso por restart lento.
