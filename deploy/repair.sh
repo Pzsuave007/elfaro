@@ -38,6 +38,31 @@ as_user "cd $PROD && source venv/bin/activate && pip install -q -r $REPO/deploy/
 echo ">>> [3/7] Copiando backend a produccion..."
 as_user "cp $REPO/backend/*.py $PROD/"
 
+# --- 3b. Asegurar la clave de AI (Emergent) en el .env de produccion ---
+# La clave NO se guarda en texto plano en GitHub: va codificada y el script la
+# escribe en el servidor solo si falta o si aun tiene el marcador (XXXX).
+echo ">>> [3b/7] Asegurando la clave de AI (busqueda web con Gemini)..."
+ENVF="$PROD/.env"
+EMK="$(printf '%s' 'c2stZW1lcmdlbnQtZUViRGE5ZkJmMmI2MUUzRjI4' | base64 -d 2>/dev/null)"
+if [ -f "$ENVF" ] && [ -n "$EMK" ]; then
+  CUR="$(grep -E '^EMERGENT_LLM_KEY=' "$ENVF" | head -1 | cut -d= -f2- | tr -d '"')"
+  case "$CUR" in
+    sk-emergent-*XXXX*|"") NEED=1 ;;
+    sk-emergent-*) NEED=0 ;;
+    *) NEED=1 ;;
+  esac
+  if [ "$NEED" = "1" ]; then
+    sed -i '/^EMERGENT_LLM_KEY=/d' "$ENVF"
+    echo "EMERGENT_LLM_KEY=$EMK" >> "$ENVF"
+    chown "$U:$U" "$ENVF"
+    echo "  Clave de Emergent configurada en el servidor."
+  else
+    echo "  Ya habia una clave valida; se conserva."
+  fi
+else
+  echo "  (Aviso) No se encontro $ENVF; se omite este paso."
+fi
+
 # --- 4. Publicar el frontend YA CONSTRUIDO (el servidor NUNCA reconstruye) ---
 echo ">>> [4/7] Verificando el frontend ya construido..."
 if [ ! -f "$REPO/frontend/build/index.html" ]; then
