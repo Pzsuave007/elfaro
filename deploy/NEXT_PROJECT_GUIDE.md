@@ -23,19 +23,42 @@
 
 ---
 
-## 🔢 Tabla de Puertos por App (ACTUALIZADA)
+## 🔢 Tabla de Puertos (VERIFICADO EN EL SERVER — Jun 2026)
 
-| App | Puerto | Estado |
-|---|---|---|
-| GradeProphet | 8001 | usado |
-| OnPar Live | 8005 | usado |
-| La Campeona | 8006 | usado |
-| (reservado) | 8007 | reservado |
-| **El Faro en Oregon** | **8008** | usado |
-| **TU NUEVO PROYECTO** | **8009** | ← elige este (siguiente libre) |
+Salida real de `ss -ltnp` + `systemctl` en el VPS. Estos puertos están **OCUPADOS**:
 
-⚠️ **NUNCA reutilices un puerto.** Cada app tiene el suyo. Defínelo en UNA variable usada en TODOS los scripts.
-Para ver qué puertos están ocupados en el server: `ss -ltnp | grep -E '80(0[1-9]|1[0-9])'`
+### Backends (uvicorn/python, en 127.0.0.1:80xx)
+| Puerto | Proceso / App |
+|---|---|
+| 8001 | python3.11 / uvicorn (GradeProphet) |
+| 8002 | python |
+| 8006 | python3 (La Campeona) |
+| 8007 | uvicorn |
+| 8008 | **El Faro en Oregon** |
+| 8010 | uvicorn |
+| 8012 | uvicorn |
+| **8013** | **← LIBRE: usa este para tu nuevo backend** |
+
+### Frontends en Node (algunas apps NO son estáticas: corren su propio server)
+| Puerto | Proceso |
+|---|---|
+| 3000 | node |
+| 3001 | node |
+| 3002 | next-server (Next.js) |
+| 4001 | node |
+| **3003** | **← LIBRE: úsalo solo si tu app necesita frontend Node/SSR** |
+
+### Servicios systemd activos
+`bensroad-backend`, `elfaro-backend`, `espresso-backend`, `gradeprophet-backend`, `gradeprophet-frontend`
+
+### Sistema (NO tocar): 22(ssh), 80/443(Apache), 27017(Mongo), 3306(MySQL), 25/465/587/993/995(correo), 2082-2096(cPanel), 53(DNS)
+
+⚠️ **NUNCA reutilices un puerto.** Antes de cada deploy, VERIFICA con:
+```bash
+ss -ltnp | grep -E ':(80[0-9][0-9]|30[0-9][0-9]|40[0-9][0-9])'
+systemctl list-units --type=service | grep -Ei 'backend|frontend|uvicorn'
+```
+Y elige uno que NO aparezca. Para este proyecto: **backend 8013** (y **3003** si necesitas Node front).
 
 ---
 
@@ -69,7 +92,7 @@ Para ver qué puertos están ocupados en el server: `ss -ltnp | grep -E '80(0[1-
 ### ✅ HACER
 1. `git config --global --add safe.directory '*'` (una vez por server).
 2. Repo en `/home/USER/repo/` (subcarpeta, NO en `/home/USER/`).
-3. **Puerto único** por app (ver tabla). Este proyecto: **8009**.
+3. **Puerto único** por app (ver tabla). Este proyecto: **8013**.
 4. **Construir el frontend EN EMERGENT** con la URL relativa y **commitear `frontend/build/`**:
    ```bash
    cd frontend && REACT_APP_BACKEND_URL="" GENERATE_SOURCEMAP=false yarn build
@@ -116,14 +139,14 @@ Pillow
 emergentintegrations
 ```
 
-## 🌐 htaccess (cambia SOLO el puerto → 8009)
+## 🌐 htaccess (cambia SOLO el puerto → 8013)
 ```apache
 RewriteEngine On
 RewriteCond %{HTTPS} !=on
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 RewriteCond %{REQUEST_URI} ^/api
-RewriteRule ^(.*)$ http://127.0.0.1:8009/$1 [P,L]
+RewriteRule ^(.*)$ http://127.0.0.1:8013/$1 [P,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
@@ -170,8 +193,8 @@ Type=simple
 User=miapp
 Group=miapp
 WorkingDirectory=/opt/miapp/backend
-Environment=PORT=8009
-ExecStart=/opt/miapp/backend/venv/bin/uvicorn server:app --host 127.0.0.1 --port 8009
+Environment=PORT=8013
+ExecStart=/opt/miapp/backend/venv/bin/uvicorn server:app --host 127.0.0.1 --port 8013
 Restart=always
 RestartSec=3
 StartLimitIntervalSec=0
@@ -266,10 +289,10 @@ grep -v "JWT_SECRET\|PASSWORD\|LLM_KEY\|OPENAI" /opt/miapp/backend/.env
 ---
 
 ## ✅ Checklist del Próximo Proyecto
-- [ ] Elegir puerto **8009** (siguiente libre; verifica con `ss -ltnp`)
+- [ ] Elegir puerto **8013** (siguiente libre; verifica con `ss -ltnp`)
 - [ ] Crear cuenta cPanel + dominio + DNS
 - [ ] Crear repo en GitHub
-- [ ] Copiar carpeta `deploy/` de El Faro y reemplazar: usuario, dominio, puerto (8008→8009), nombre del servicio systemd
+- [ ] Copiar carpeta `deploy/` de El Faro y reemplazar: usuario, dominio, puerto (8008→8013), nombre del servicio systemd
 - [ ] Poner tu clave Emergent en base64 dentro de `repair.sh`
 - [ ] **Construir frontend en Emergent con `REACT_APP_BACKEND_URL=""` y commitear `frontend/build/`**
 - [ ] "Save to Github"
