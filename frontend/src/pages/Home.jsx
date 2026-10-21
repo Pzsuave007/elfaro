@@ -63,28 +63,28 @@ export default function Home() {
       </section>
 
       {/* ELECCIONES 2026 — CANDIDATOS (flagship full-width) */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-[hsl(150,42%,12%)] text-primary-foreground" data-testid="section-elecciones">
-        <Vote className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 text-white/[0.05] rotate-12" />
-        <Landmark className="pointer-events-none absolute left-[-40px] bottom-[-30px] h-52 w-52 text-white/[0.04]" />
-        <Scale className="pointer-events-none absolute right-[18%] bottom-6 h-28 w-28 text-white/[0.04]" />
+      <section className="relative overflow-hidden border-y border-border bg-gradient-to-br from-secondary/70 via-background to-primary/5 text-foreground" data-testid="section-elecciones">
+        <Vote className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 text-primary/[0.05] rotate-12" />
+        <Landmark className="pointer-events-none absolute left-[-40px] bottom-[-30px] h-52 w-52 text-primary/[0.04]" />
+        <Scale className="pointer-events-none absolute right-[18%] bottom-6 h-28 w-28 text-primary/[0.04]" />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 py-12 sm:py-16">
           {/* header */}
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-7">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-terracotta px-3.5 py-1.5 mb-4">
-                <Vote className="h-4 w-4 text-white" />
-                <span className="text-xs font-sans font-bold uppercase tracking-[0.2em] text-white">Elecciones 2026</span>
+              <div className="inline-flex items-center gap-2 rounded-full bg-terracotta/[0.12] px-3.5 py-1.5 mb-4">
+                <Vote className="h-4 w-4 text-terracotta" />
+                <span className="text-xs font-sans font-bold uppercase tracking-[0.2em] text-terracotta">Elecciones 2026</span>
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1] tracking-tight">Conoce a los candidatos</h2>
-              <p className="mt-3 text-base sm:text-lg text-primary-foreground/80 leading-relaxed">Información neutral y equivalente para todos. Toca una candidata para ver su perfil y propuestas.</p>
-              <div className="mt-4 inline-flex items-center gap-2 text-xs sm:text-sm text-primary-foreground/75">
-                <ShieldCheck className="h-4 w-4 shrink-0 text-terracotta" />
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1] tracking-tight text-foreground">Conoce a los candidatos</h2>
+              <p className="mt-3 text-base sm:text-lg text-muted-foreground leading-relaxed">Información neutral y equivalente para todos. Toca una candidata para ver su perfil y propuestas.</p>
+              <div className="mt-4 inline-flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
                 Plataforma cívica e independiente · Todas cuentan con el mismo espacio.
               </div>
             </div>
             <Link to="/elecciones" className="shrink-0" aria-label="Comparar las propuestas de las candidatas">
-              <Button size="lg" className="h-13 px-7 text-sm font-semibold tracking-wide bg-white text-primary hover:bg-white/90 shadow-lg" data-testid="conocer-candidatos-btn">
+              <Button size="lg" className="h-13 px-7 text-sm font-semibold tracking-wide shadow-lg shadow-primary/15" data-testid="conocer-candidatos-btn">
                 <Landmark className="mr-2 h-5 w-5" /> Comparar propuestas
               </Button>
             </Link>
@@ -95,7 +95,7 @@ export default function Home() {
               {candidates.slice(0, 2).map((c) => (
                 <Link key={c.id} to={`/elecciones/candidato/${c.id}`} data-testid={`home-candidate-${c.id}`}
                   aria-label={`Ver perfil de ${(c.name || "").replace("[DEMO] ", "")}`}
-                  className="group flex flex-col sm:flex-row items-center gap-5 sm:gap-7 rounded-2xl bg-card p-5 sm:p-6 text-foreground shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary">
+                  className="group flex flex-col sm:flex-row items-center gap-5 sm:gap-7 rounded-2xl border border-border/80 bg-card p-5 sm:p-6 text-foreground shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-terracotta/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                   <div className="relative h-28 w-28 sm:h-32 sm:w-32 shrink-0 overflow-hidden rounded-2xl shadow-md ring-4 ring-secondary transition-all duration-300 group-hover:ring-terracotta/40">
                     {c.photo
                       ? <img src={mediaUrl(c.photo)} alt={c.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -124,9 +124,9 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-white/25 bg-white/5 p-10 text-center text-primary-foreground/80">
-              <Vote className="mx-auto mb-3 h-8 w-8 text-white/40" />
-              Pronto publicaremos a las candidatas. <Link to="/elecciones" className="font-semibold text-white underline-offset-2 hover:underline">Más información</Link>
+            <div className="rounded-2xl border border-dashed border-primary/25 bg-card/60 p-10 text-center text-muted-foreground">
+              <Vote className="mx-auto mb-3 h-8 w-8 text-primary/40" />
+              Pronto publicaremos a las candidatas. <Link to="/elecciones" className="font-semibold text-primary underline-offset-2 hover:underline">Más información</Link>
             </div>
           )}
         </div>
