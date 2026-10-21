@@ -44,32 +44,44 @@ export default function Home() {
 
   return (
     <div>
-      {/* HERO — CANDIDATOS (Elecciones 2026) */}
-      <section className="relative overflow-hidden bg-primary text-primary-foreground" data-testid="hero-candidates">
-        <div className="absolute inset-0 opacity-10">
+      {/* HERO (original) */}
+      <section className="relative overflow-hidden bg-primary text-primary-foreground" data-testid="hero-section">
+        <div className="absolute inset-0 opacity-20">
           <img src={mediaUrl(settings?.hero_image) || "https://images.unsplash.com/photo-1530563937443-1f02f662fa5c?crop=entropy&cs=srgb&fm=jpg&q=85&w=1600"} alt="" className="h-full w-full object-cover" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14 sm:py-20">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-9 fade-up">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-terracotta px-4 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-white mb-4">
-                <Vote className="h-4 w-4" /> Elecciones 2026
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 sm:py-24 lg:py-28">
+          <div className="max-w-3xl fade-up">
+            <p className="text-xs font-sans font-semibold uppercase tracking-[0.15em] text-primary-foreground/75 mb-4">{settings?.hero_eyebrow || "Información pública en español · Oregon"}</p>
+            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
+              {settings?.hero_title || "Información clara para vivir, participar y salir adelante en Oregon."}
+            </h1>
+            <p className="mt-5 text-lg sm:text-xl text-primary-foreground/80 leading-relaxed max-w-2xl">
+              {settings?.hero_subtitle || "Noticias, recursos, leyes e información pública en español para nuestra comunidad."}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ELECCIONES 2026 — CANDIDATOS (debajo del hero) */}
+      <section className="bg-secondary/40 border-b border-border" data-testid="section-elecciones">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14 sm:py-16">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-8">
+            <div className="flex items-start gap-4">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Vote className="h-6 w-6" /></span>
+              <div>
+                <p className="eyebrow mb-1">Elecciones 2026</p>
+                <h2 className="font-serif text-3xl sm:text-4xl font-bold">Conoce a los candidatos</h2>
+                <p className="mt-2 text-muted-foreground max-w-xl">Información neutral y equivalente para todos. Toca un candidato para ver su perfil y propuestas.</p>
               </div>
-              <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight">Conoce a los candidatos</h1>
-              <p className="mt-4 text-lg sm:text-xl text-primary-foreground/80 leading-relaxed">Información neutral y equivalente para todos. Toca un candidato para ver su perfil y propuestas.</p>
             </div>
-            <Link to="/elecciones" className="shrink-0">
-              <Button size="lg" className="h-13 px-7 bg-white text-primary hover:bg-white/90 rounded-lg font-semibold" data-testid="conocer-candidatos-btn">
-                <Landmark className="mr-2 h-5 w-5" /> Comparar propuestas
-              </Button>
-            </Link>
+            <Link to="/elecciones" className="shrink-0"><Button size="lg" data-testid="conocer-candidatos-btn"><Landmark className="mr-2 h-5 w-5" /> Comparar propuestas</Button></Link>
           </div>
 
           {candidates.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="home-candidates">
               {candidates.slice(0, 8).map((c) => (
                 <Link key={c.id} to={`/elecciones/candidato/${c.id}`} data-testid={`home-candidate-${c.id}`}
-                  className="group rounded-2xl bg-white p-5 text-center text-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                  className="group rounded-2xl bg-card p-5 text-center shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                   {c.photo
                     ? <img src={mediaUrl(c.photo)} alt={c.name} className="mx-auto h-24 w-24 rounded-full object-cover ring-4 ring-secondary" />
                     : <span className="mx-auto grid h-24 w-24 place-items-center rounded-full bg-secondary text-2xl font-serif font-bold text-muted-foreground ring-4 ring-secondary">{(c.name || "?").replace("[DEMO] ", "").charAt(0)}</span>}
@@ -81,40 +93,10 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-8 text-center text-primary-foreground/80">
-              Pronto publicaremos a los candidatos. <Link to="/elecciones" className="underline">Más información</Link>
+            <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
+              Pronto publicaremos a los candidatos. <Link to="/elecciones" className="text-primary underline">Más información</Link>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* BÚSQUEDA */}
-      <section className="bg-secondary/40 border-b border-border" data-testid="hero-section">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
-          <form onSubmit={submit} data-testid="hero-search-form" className="text-center">
-            <label className="block text-base font-semibold text-foreground mb-3">{settings?.hero_search_label || "¿Qué información estás buscando?"}</label>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
-                <Input value={q} onChange={(e) => setQ(e.target.value)}
-                  placeholder="Ayuda con renta, nueva ley, elecciones..."
-                  className="h-14 pl-12 text-base bg-white text-foreground rounded-lg"
-                  data-testid="hero-search-input" />
-              </div>
-              <Button type="submit" size="lg" className="h-14 px-8 bg-terracotta hover:bg-terracotta/90 text-white rounded-lg" data-testid="hero-search-button">
-                Buscar
-              </Button>
-            </div>
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              {SEARCH_EXAMPLES.map((ex) => (
-                <button key={ex} type="button" onClick={() => navigate(`/buscar?q=${encodeURIComponent(ex)}`)}
-                  className="rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:border-primary hover:text-primary transition-colors"
-                  data-testid={`hero-example-${ex}`}>
-                  {ex}
-                </button>
-              ))}
-            </div>
-          </form>
         </div>
       </section>
 
