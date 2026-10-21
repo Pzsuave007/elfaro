@@ -61,10 +61,14 @@ async def public_candidates(election_id: Optional[str] = None):
     out = []
     for c in cands:
         r = rmap.get(c.get("race_id")) or {}
+        prio = c.get("priorities") or []
+        if isinstance(prio, str):
+            prio = [p.strip() for p in prio.split("\n") if p.strip()]
         out.append({
             "id": c["id"], "name": c.get("name", ""), "party": c.get("party", ""),
             "photo": c.get("photo", ""), "position": c.get("position", ""),
             "district": c.get("district", ""), "is_demo": c.get("is_demo", False),
+            "bio": c.get("bio", ""), "priorities": [str(p) for p in prio][:3],
             "race_id": c.get("race_id", ""), "race_title": r.get("title", ""),
             "race_type": r.get("race_type", ""),
         })

@@ -62,60 +62,71 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ELECCIONES 2026 — CANDIDATOS (flagship, debajo del hero) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 sm:py-16" data-testid="section-elecciones">
-        <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-secondary/80 via-background to-primary/5 p-6 sm:p-10 lg:p-14 shadow-xl shadow-primary/5 fade-up">
-          {/* marca de agua cívica */}
-          <Vote className="pointer-events-none absolute -right-8 -top-8 h-44 w-44 text-primary/[0.04] rotate-12" />
-          <Landmark className="pointer-events-none absolute -left-10 bottom-0 h-40 w-40 text-primary/[0.03]" />
+      {/* ELECCIONES 2026 — CANDIDATOS (flagship full-width) */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-[hsl(150,42%,12%)] text-primary-foreground" data-testid="section-elecciones">
+        <Vote className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 text-white/[0.05] rotate-12" />
+        <Landmark className="pointer-events-none absolute left-[-40px] bottom-[-30px] h-52 w-52 text-white/[0.04]" />
+        <Scale className="pointer-events-none absolute right-[18%] bottom-6 h-28 w-28 text-white/[0.04]" />
 
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 py-12 sm:py-16">
           {/* header */}
-          <div className="relative flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 border-b border-border/60 mb-8 sm:mb-10">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-terracotta/[0.12] px-3.5 py-1.5 mb-4">
-                <Vote className="h-4 w-4 text-terracotta" />
-                <span className="text-xs font-sans font-bold uppercase tracking-[0.2em] text-terracotta">Elecciones 2026</span>
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-7">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full bg-terracotta px-3.5 py-1.5 mb-4">
+                <Vote className="h-4 w-4 text-white" />
+                <span className="text-xs font-sans font-bold uppercase tracking-[0.2em] text-white">Elecciones 2026</span>
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-[1.12] tracking-tight">Conoce a los candidatos</h2>
-              <p className="mt-3 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl">Información neutral y equivalente para todos. Toca un candidato para ver su perfil y propuestas.</p>
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1] tracking-tight">Conoce a los candidatos</h2>
+              <p className="mt-3 text-base sm:text-lg text-primary-foreground/80 leading-relaxed">Información neutral y equivalente para todos. Toca una candidata para ver su perfil y propuestas.</p>
+              <div className="mt-4 inline-flex items-center gap-2 text-xs sm:text-sm text-primary-foreground/75">
+                <ShieldCheck className="h-4 w-4 shrink-0 text-terracotta" />
+                Plataforma cívica e independiente · Todas cuentan con el mismo espacio.
+              </div>
             </div>
-            <Link to="/elecciones" className="shrink-0" aria-label="Comparar las propuestas de los candidatos">
-              <Button size="lg" className="h-13 px-7 text-sm font-semibold tracking-wide shadow-lg shadow-primary/15" data-testid="conocer-candidatos-btn">
+            <Link to="/elecciones" className="shrink-0" aria-label="Comparar las propuestas de las candidatas">
+              <Button size="lg" className="h-13 px-7 text-sm font-semibold tracking-wide bg-white text-primary hover:bg-white/90 shadow-lg" data-testid="conocer-candidatos-btn">
                 <Landmark className="mr-2 h-5 w-5" /> Comparar propuestas
               </Button>
             </Link>
           </div>
 
-          {/* sello no partidista */}
-          <div className="relative mb-7 inline-flex items-center gap-2 rounded-lg bg-primary/[0.06] px-3.5 py-2 text-xs sm:text-sm text-primary dark:text-primary-foreground/90">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
-            Plataforma cívica e independiente · Todos los candidatos cuentan con el mismo espacio.
-          </div>
-
           {candidates.length > 0 ? (
-            <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto" data-testid="home-candidates">
+            <div className="space-y-4" data-testid="home-candidates">
               {candidates.slice(0, 2).map((c) => (
                 <Link key={c.id} to={`/elecciones/candidato/${c.id}`} data-testid={`home-candidate-${c.id}`}
                   aria-label={`Ver perfil de ${(c.name || "").replace("[DEMO] ", "")}`}
-                  className="group relative flex flex-col items-center justify-between rounded-2xl border border-border/80 bg-card p-8 text-center shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-terracotta/40 hover:shadow-xl hover:shadow-terracotta/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
-                  <div className="relative mb-5 h-32 w-32 sm:h-36 sm:w-36 overflow-hidden rounded-full shadow-md ring-4 ring-primary/10 transition-all duration-300 group-hover:ring-terracotta/50 group-hover:scale-105">
+                  className="group flex flex-col sm:flex-row items-center gap-5 sm:gap-7 rounded-2xl bg-card p-5 sm:p-6 text-foreground shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary">
+                  <div className="relative h-28 w-28 sm:h-32 sm:w-32 shrink-0 overflow-hidden rounded-2xl shadow-md ring-4 ring-secondary transition-all duration-300 group-hover:ring-terracotta/40">
                     {c.photo
-                      ? <img src={mediaUrl(c.photo)} alt={c.name} loading="lazy" className="h-full w-full object-cover" />
+                      ? <img src={mediaUrl(c.photo)} alt={c.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       : <span className="grid h-full w-full place-items-center bg-secondary text-4xl font-serif font-bold text-muted-foreground">{(c.name || "?").replace("[DEMO] ", "").charAt(0)}</span>}
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-serif text-xl sm:text-2xl font-bold leading-tight text-foreground transition-colors group-hover:text-primary">{(c.name || "").replace("[DEMO] ", "")}</h3>
-                    {c.party && <p className="mt-1.5 text-sm font-semibold uppercase tracking-wider text-terracotta">{c.party}</p>}
+                  <div className="flex-1 min-w-0 text-center sm:text-left">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1">
+                      <h3 className="font-serif text-xl sm:text-2xl font-bold leading-tight transition-colors group-hover:text-primary">{(c.name || "").replace("[DEMO] ", "")}</h3>
+                      {c.party && <span className="rounded-full bg-terracotta/[0.12] px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-terracotta">{c.party}</span>}
+                    </div>
                     {c.race_title && <p className="mt-1 text-sm font-medium text-muted-foreground">{c.race_title}</p>}
+                    {c.priorities && c.priorities.length > 0 ? (
+                      <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-2">
+                        {c.priorities.slice(0, 3).map((p, i) => (
+                          <span key={i} className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-2.5 py-1 text-xs text-foreground/80">
+                            <span className="h-1.5 w-1.5 rounded-full bg-terracotta" /> {p}
+                          </span>
+                        ))}
+                      </div>
+                    ) : c.bio ? (
+                      <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{c.bio}</p>
+                    ) : null}
                   </div>
-                  <span className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-primary/[0.07] px-4 py-2 text-sm font-semibold text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">Ver perfil <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" /></span>
+                  <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors group-hover:bg-terracotta">Ver perfil <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" /></span>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="relative rounded-2xl border border-dashed border-primary/25 bg-card/60 p-10 text-center">
-              <Vote className="mx-auto mb-3 h-8 w-8 text-primary/40" />
-              <p className="text-muted-foreground">Pronto publicaremos a los candidatos. <Link to="/elecciones" className="font-semibold text-primary underline-offset-2 hover:underline">Más información</Link></p>
+            <div className="rounded-2xl border border-dashed border-white/25 bg-white/5 p-10 text-center text-primary-foreground/80">
+              <Vote className="mx-auto mb-3 h-8 w-8 text-white/40" />
+              Pronto publicaremos a las candidatas. <Link to="/elecciones" className="font-semibold text-white underline-offset-2 hover:underline">Más información</Link>
             </div>
           )}
         </div>
