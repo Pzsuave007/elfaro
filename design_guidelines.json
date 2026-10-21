@@ -1,155 +1,102 @@
 {
-  "project_name": "El Foro In Oregon",
-  "tagline": "Información para vivir, participar y entender Oregon.",
-  "secondary_message": "Noticias, recursos, leyes e información pública en español para nuestra comunidad.",
-  "design_philosophy": {
-    "archetype": "Public Media & Editorial Non-Profit Journalism",
-    "tone": [
-      "Serio",
-      "Informativo",
-      "Institucional",
-      "Comunitario",
-      "Políticamente Neutral",
-      "Humano y Cercano",
-      "Editorial Moderno"
-    ],
-    "anti_patterns": [
-      "NO directorio de negocios comercial",
-      "NO sitio de entretenimiento o sensacionalista",
-      "NO periódico viejo ni sobrecargado",
-      "NO partidismo político (evitar rojo republicano dominante vs azul demócrata)",
-      "NO uso de Inter o Space Grotesk para titulares principal/secundarios",
-      "NO layouts apretados sin aire; priorizar espacio en blanco amplio"
-    ]
+  "design_title": "El Faro en Oregon - Elecciones 2026 Flagship Homepage Redesign Blueprint",
+  "persona": "E1 - The Anti-AI Creative Designer",
+  "context": "Civic & News Platform / Flagship Elections Section Redesign",
+  "theme": "Dual Light/Dark Support with Forest Green (#143E2B) & Terracotta (#C85A32) Accent Palette",
+  "target_section": {
+    "name": "Elecciones 2026 / Conoce a los candidatos",
+    "location": "Homepage - Positioned directly below Hero as the primary flagship moment",
+    "goal": "Transform into an authoritative, institutional, non-partisan, attention-grabbing flagship banner that establishes civic trust while standing out visually from all other content blocks."
   },
   "typography": {
-    "headline_font": "Lora, Georgia, 'Playfair Display', serif",
-    "body_font": "'Work Sans', 'Plus Jakarta Sans', 'DM Sans', sans-serif",
-    "mono_font": "'JetBrains Mono', 'Fira Code', monospace",
-    "hierarchy": {
-      "hero_title": "text-4xl sm:text-5xl lg:text-6xl font-serif font-bold tracking-tight text-slate-900 dark:text-stone-100 leading-[1.15]",
-      "section_heading": "text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-slate-900 dark:text-stone-100 tracking-tight",
-      "subsection_heading": "text-xl sm:text-2xl font-serif font-semibold text-slate-800 dark:text-stone-200",
-      "card_title": "text-lg sm:text-xl font-serif font-bold text-slate-900 dark:text-stone-100 hover:text-emerald-800 dark:hover:text-emerald-400 transition-colors",
-      "body_text": "text-base sm:text-lg font-sans text-slate-700 dark:text-stone-300 leading-relaxed",
-      "small_body": "text-sm font-sans text-slate-600 dark:text-stone-400 leading-normal",
-      "meta_label": "text-xs font-sans uppercase tracking-[0.15em] font-semibold text-emerald-800 dark:text-emerald-400"
+    "font_families": {
+      "headings": "'Lora', Georgia, serif",
+      "body": "'Work Sans', 'Plus Jakarta Sans', sans-serif",
+      "mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+    },
+    "scale": {
+      "eyebrow": "text-xs font-sans font-bold uppercase tracking-[0.2em] text-terracotta dark:text-terracotta",
+      "flagship_heading": "font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground leading-[1.15] tracking-tight",
+      "subtitle": "text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl",
+      "card_title": "font-serif text-lg font-bold text-foreground group-hover:text-primary transition-colors",
+      "card_party": "text-xs font-semibold text-terracotta uppercase tracking-wider",
+      "card_office": "text-xs text-muted-foreground font-medium",
+      "cta_text": "text-sm font-semibold tracking-wide"
     }
   },
-  "color_palette": {
-    "primary_brand": {
-      "deep_oregon_green": "#1B3B2B",
-      "deep_oregon_green_hover": "#142E21",
-      "emerald_accent": "#2D5A40",
-      "light_sage_tint": "#E8ECE9"
-    },
-    "neutrals": {
-      "charcoal": "#1A1D20",
-      "charcoal_muted": "#2C3036",
-      "warm_stone_bg": "#F9F8F6",
-      "pure_white": "#FFFFFF",
-      "border_gray": "#E2E0DB",
-      "dark_mode_bg": "#121518",
-      "dark_mode_card": "#1C2024"
-    },
-    "earth_tones": {
-      "terracotta_soft": "#C47055",
-      "clay_tan": "#D9C5B2",
-      "sand": "#F2EBE1",
-      "ochre_muted": "#8C6D53"
-    },
-    "semantic": {
-      "info_blue": "#2B5270",
-      "success_green": "#2D5A40",
-      "warning_amber": "#B5762A",
-      "official_badge_bg": "#EBF2ED",
-      "official_badge_text": "#1B3B2B"
-    }
+  "colors": {
+    "primary_forest": "hsl(150, 38%, 17%) / #143E2B",
+    "accent_terracotta": "hsl(15, 46%, 55%) / #C85A32",
+    "ochre": "hsl(28, 26%, 44%) / #8D6740",
+    "card_light": "hsl(0, 0%, 100%)",
+    "card_dark": "hsl(200, 11%, 12%)",
+    "flagship_bg_light": "linear-gradient(135deg, hsl(40 26% 96%) 0%, hsl(150 20% 94%) 100%)",
+    "flagship_bg_dark": "linear-gradient(135deg, hsl(200 15% 10%) 0%, hsl(150 25% 12%) 100%)",
+    "badge_bg": "hsl(15 46% 55% / 0.12)",
+    "border_light": "hsl(45 13% 86%)",
+    "border_accent": "hsl(15 46% 55% / 0.3)"
   },
-  "spacing_and_layout": {
-    "container_padding": "px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto",
-    "section_gap": "py-12 sm:py-16 lg:py-24",
-    "card_padding": "p-6 sm:p-8",
-    "grid_modes": {
-      "featured_news_bento": "grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10",
-      "resources_grid": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6",
-      "article_layout": "grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12"
-    }
+  "visual_enhancers": {
+    "flagship_container_styling": "relative overflow-hidden rounded-3xl border border-primary/20 dark:border-primary/40 bg-gradient-to-br from-secondary/80 via-background to-primary/5 p-6 sm:p-10 lg:p-14 shadow-xl shadow-primary/5",
+    "subtle_watermark": "Absolute backdrop text or civic icon opacity effect (e.g. oversized low-opacity Vote icon in container corner) to ground the institutional tone.",
+    "card_elevation": "bg-card border border-border/80 hover:border-terracotta/40 rounded-2xl p-6 text-center transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-terracotta/5 group relative flex flex-col items-center justify-between",
+    "avatar_frame": "relative mb-4 h-24 w-24 sm:h-28 sm:w-28 overflow-hidden rounded-full ring-4 ring-primary/10 group-hover:ring-terracotta/50 transition-all duration-300 shadow-md group-hover:scale-105"
   },
-  "component_design_system": {
-    "header_nav": {
-      "style": "Crystal glass top nav with subtle bottom border, sticky header with backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-stone-200/80 dark:border-stone-800 z-50",
-      "logo": "EL FORO IN OREGON - Distinctive serif branding with green mountain/river accent mark",
-      "menu_items": [
-        {"label": "Inicio", "path": "/"},
-        {"label": "Entérate", "path": "/enterate"},
-        {"label": "Recursos", "path": "/recursos"},
-        {"label": "Oregon Te Informa", "path": "/oregon-te-informa"},
-        {"label": "Conoce Oregon", "path": "/conoce-oregon"}
-      ],
-      "actions": ["Search Bar Quick Toggle", "Boletín / Newsletter Button", "Admin Portal Link"]
-    },
-    "hero_section": {
-      "style": "Clean, spacious institutional header banner with deep Oregon green primary framing, high-contrast search input '¿Qué información estás buscando?' with quick category pill filters (Vivienda, Leyes, Salud, Empleo, Inmigración, Elecciones 2026)."
-    },
-    "article_cards": {
-      "featured": "col-span-full lg:col-span-8 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all group",
-      "secondary": "col-span-full lg:col-span-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all group",
-      "elements": ["Image preview", "Category badge in muted earth tone", "Headline in Lora serif", "Executive summary (2 lines)", "Publication date & reading time", "Leer más link with arrow icon"]
-    },
-    "resource_grid_items": {
-      "categories": [
-        {"id": "vivienda", "label": "Vivienda", "icon": "Home", "count": "18 Recursos"},
-        {"id": "salud", "label": "Salud", "icon": "HeartPulse", "count": "24 Recursos"},
-        {"id": "empleo", "label": "Empleo", "icon": "Briefcase", "count": "15 Recursos"},
-        {"id": "educacion", "label": "Educación", "icon": "GraduationCap", "count": "20 Recursos"},
-        {"id": "familias", "label": "Familias", "icon": "Users", "count": "12 Recursos"},
-        {"id": "asistencia-legal", "label": "Asistencia Legal", "icon": "Scale", "count": "16 Recursos"},
-        {"id": "inmigracion", "label": "Inmigración", "icon": "Globe", "count": "14 Recursos"},
-        {"id": "alimentos", "label": "Alimentos", "icon": "Apple", "count": "11 Recursos"},
-        {"id": "servicios-publicos", "label": "Servicios Públicos", "icon": "Zap", "count": "9 Recursos"},
-        {"id": "transporte", "label": "Transporte", "icon": "Bus", "count": "7 Recursos"}
-      ],
-      "style": "Soft warm beige/stone background (#F2EBE1/dark:bg-stone-800) card with forest green icon circle, crisp typography, hover border highlight."
-    },
-    "oregon_te_informa_cards": {
-      "structure": [
-        "¿Qué cambió?",
-        "¿A quién afecta?",
-        "¿Cuándo entra en vigor?",
-        "¿Qué necesitas hacer?",
-        "Fuente oficial verificada"
-      ],
-      "style": "Institutional explanatory accordion or structured step-by-step card with high-legibility badges and direct links to official state websites (.gov)."
-    },
-    "elections_2026_module": {
-      "style": "Strictly non-partisan candidate and ballot measure side-by-side comparison table. Equal width columns, identical neutral layout, plain language breakdown of proposals without opinionated language."
-    },
-    "cms_admin_dashboard": {
-      "style": "High-density functional dashboard using crisp slate dark/light UI, collapsible sidebar, live metric cards, rich article editor with built-in AI Spanish clarity assistant, source verification tracker, and workflow approval status."
-    }
+  "grids": {
+    "candidates_grid": "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6",
+    "header_flex": "flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 border-b border-border/60 mb-8 sm:mb-10"
+  },
+  "layouts": {
+    "section_structure": [
+      "1. Outer Container: section with data-testid='section-elecciones' className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 sm:py-16'",
+      "2. Flagship Frame: div with rounded-3xl, gradient background, border, shadow, and relative overflow-hidden",
+      "3. Header Block: Eyebrow badge 'Elecciones 2026' with Vote icon, H2 title 'Conoce a los candidatos', Subtitle 'Información neutral y equivalente para todos. Toca un candidato para ver su perfil y propuestas.', and CTA Button 'Comparar propuestas' (data-testid='conocer-candidatos-btn') linked to /elecciones",
+      "4. Non-Partisan Integrity Banner: A small subtle trust indicator ('Plataforma cívica e independiente · Todos los candidatos cuentan con el mismo espacio')",
+      "5. Candidate Grid: div with data-testid='home-candidates' rendering up to 8 candidate cards with data-testid='home-candidate-${c.id}'",
+      "6. Empty State: Tasteful civic notice card 'Pronto publicaremos a los candidatos' if array is empty"
+    ]
+  },
+  "motion": {
+    "entrance": "fade-up entry animation on section scroll into view",
+    "card_hover": "hover:-translate-y-1.5 transition-transform duration-300 ease-out",
+    "avatar_hover": "group-hover:scale-105 transition-transform duration-300 ease-out",
+    "arrow_shift": "group-hover:translate-x-1 transition-transform duration-200"
+  },
+  "accessibility": {
+    "wcag_level": "WCAG AA minimum (APCA compliant contrast)",
+    "color_contrast": "Ensure party text and neutral subtitles maintain > 4.5:1 ratio on both light and dark card backgrounds.",
+    "focus_states": "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+    "aria_labels": "aria-label provided for candidate profile links and primary CTA button"
+  },
+  "media": {
+    "avatar_fallback": "Round initial avatar with Lora serif initial on warm secondary background if c.photo is absent",
+    "image_optimization": "Use mediaUrl(c.photo) helper with lazy loading and object-cover fit"
   },
   "image_urls": {
-    "hero_nature_oregon": "https://images.unsplash.com/photo-1530563937443-1f02f662fa5c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHxfHxvcmVnb24lMjBmb3Jlc3R8ZW58MHx8fHwxNzg4OTExMjY2fDA&ixlib=rb-4.1.0&q=85",
-    "oregon_forest_mist": "https://images.unsplash.com/photo-1697490595762-adbe33c26d2f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHw0fHxvcmVnb24lMjBmb3Jlc3R8ZW58MHx8fHwxNzg4OTExMjY2fDA&ixlib=rb-4.1.0&q=85",
-    "oregon_landscape_mountains": "https://images.unsplash.com/photo-1638176818276-a4e90c753da6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwzfHxvcmVnb24lMjBmb3Jlc3R8ZW58MHx8fHwxNzg4OTExMjY2fDA&ixlib=rb-4.1.0&q=85",
-    "hispanic_family_community": "https://images.unsplash.com/photo-1611024847487-e26177381a3f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NjZ8MHwxfHNlYXJjaHwyfHxoaXNwYW5pYyUyMGZhbWlseXxlbnwwfHx8fDE3ODg5MTEyNjZ8MA&ixlib=rb-4.1.0&q=85",
-    "community_members": "https://images.unsplash.com/photo-1614144477821-9daf217ae100?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NjZ8MHwxfHNlYXJjaHw0fHxoaXNwYW5pYyUyMGZhbWlseXxlbnwwfHx8fDE3ODg5MTEyNjZ8MA&ixlib=rb-4.1.0&q=85",
-    "father_daughter_education": "https://images.unsplash.com/photo-1609220136736-443140cffec6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NjZ8MHwxfHNlYXJjaHxffHxoaXNwYW5pYyUyMGZhbWlseXxlbnwwfHx8fDE3ODg5MTEyNjZ8MA&ixlib=rb-4.1.0&q=85",
-    "portland_city_bridge": "https://images.unsplash.com/photo-1590866249433-0310439fdab9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODh8MHwxfHNlYXJjaHw0fHxwb3J0bGFuZCUyMGNpdHl8ZW58MHx8fHwxNzg4OTExMjY5fDA&ixlib=rb-4.1.0&q=85",
-    "portland_clock_tower": "https://images.unsplash.com/photo-1641243745049-45a6cda6533c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODh8MHwxfHNlYXJjaHwyfHxwb3J0bGFuZCUyMGNpdHl8ZW58MHx8fHwxNzg4OTExMjY5fDA&ixlib=rb-4.1.0&q=85"
+    "candidate_placeholders": [
+      "https://images.pexels.com/photos/31828289/pexels-photo-31828289.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+    ]
   },
+  "3d_libraries": {
+    "usage": "Not required for civic non-partisan guide; prioritize clean, fast rendering, smooth CSS hover transitions, and accessible typography."
+  },
+  "component_path": "/app/frontend/src/pages/Home.jsx",
   "instructions_to_main_agent": [
-    "Use data-testid attribute on all interactive elements (buttons, inputs, links, tabs, search).",
-    "Ensure dark/light theme switching works cleanly with CSS variables or Tailwind dark: classes.",
-    "Implement rich Spanish editorial content with realistic Oregon civic news, housing guides, legal updates, and election comparison views.",
-    "Use Lucide icons or Phosphor icons for category icons.",
-    "Ensure WCAG AA contrast standard compliance (min 4.5:1 ratio for standard text)."
+    "Redesign the Elections 2026 section in /app/frontend/src/pages/Home.jsx (under data-testid='section-elecciones').",
+    "Preserve all required testids: section-elecciones, conocer-candidatos-btn, home-candidates, home-candidate-${c.id}.",
+    "Ensure candidate cards link to /elecciones/candidato/${c.id}.",
+    "Display round candidate photo (or initial fallback), full name, party (in terracotta), office/cargo title, and 'Ver perfil →'.",
+    "Add a non-partisan trust seal/banner ('Información neutral y equivalente para todos') to communicate non-partisan authority.",
+    "Keep styling consistent with index.css CSS variables (--primary, --terracotta, --secondary, --card, --border).",
+    "Support dark mode cleanly via Tailwind dark: variants and CSS variables.",
+    "Do NOT modify or remove the search bar / hero behavior or breaking changes elsewhere in Home.jsx."
   ],
-  "UNIVERSAL GUIDELINES FOR MAIN AGENT": {
-    "testing_requirement": "All interactive and key informational elements MUST include a data-testid attribute.",
-    "header_requirement": "Headers must not have completely transparent backgrounds when scrolled; use backdrop-blur and semi-opaque fill.",
-    "typography_rule": "Rotated font genres: Lora/Georgia for headings, Work Sans/Plus Jakarta Sans for body text.",
-    "accessibility_rule": "Follow WCAG AA contrast standards across all themes."
-  }
+  "GENERAL_UI_UX_DESIGN_GUIDELINES": [
+    "All interactive elements MUST include data-testid attributes for testing.",
+    "Never use pure black (#000000) or un-tinted grays.",
+    "Never use universal transition: all; target specific properties like transition-transform, transition-colors, transition-shadow.",
+    "Do NOT center align text globally or in top-level containers; use explicit alignment.",
+    "Ensure padding inside containers with borders so text never collides with edges.",
+    "Ensure hover states explicitely set text color to avoid invisible text in dark or light mode toggles."
+  ]
 }
