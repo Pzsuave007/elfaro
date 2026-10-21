@@ -28,7 +28,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/public/articles?limit=7").then((r) => setArticles(r.data.items));
+    api.get("/public/articles?limit=6").then((r) => setArticles(r.data.items));
     api.get("/public/oregon-info?limit=3").then((r) => setOregonInfo(r.data.items));
     api.get("/public/places?limit=3").then((r) => setPlaces(r.data.items));
     api.get("/site-settings").then((r) => setSettings(r.data)).catch(() => {});
@@ -39,8 +39,6 @@ export default function Home() {
     e.preventDefault();
     if (q.trim()) navigate(`/buscar?q=${encodeURIComponent(q.trim())}`);
   };
-
-  const [lead, ...rest] = articles;
 
   return (
     <div>
@@ -136,30 +134,9 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-14 sm:py-20" data-testid="section-hoy">
         <SectionHeading eyebrow="Historias de la comunidad" title="Historias destacadas"
           action={<Link to="/historias"><Button variant="outline" data-testid="ver-mas-enterate">Ver todas las historias <ArrowRight className="ml-1.5 h-4 w-4" /></Button></Link>} />
-        {lead && (
-          <Link to={`/historias/${lead.slug}`} data-testid={`card-${lead.slug}`}
-            className="group grid md:grid-cols-2 overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md">
-            <div className="aspect-[16/10] md:aspect-auto overflow-hidden">
-              <img src={mediaUrl(lead.featured_image)} alt={lead.title} loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-            </div>
-            <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
-              <div className="flex items-center gap-2 flex-wrap mb-3">
-                {lead.category && <CategoryBadge>{lead.category}</CategoryBadge>}
-                {lead.content_type && <span className="inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary">{lead.content_type}</span>}
-                {lead.is_demo && <DemoBadge />}
-              </div>
-              <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight tracking-tight group-hover:text-primary transition-colors">{lead.title}</h3>
-              {lead.summary && <p className="mt-3 text-muted-foreground line-clamp-3">{lead.summary}</p>}
-              <div className="mt-5 flex items-center gap-3 text-xs text-muted-foreground">
-                <span>{lead.author}</span><span>·</span><span>Leer más →</span>
-              </div>
-            </div>
-          </Link>
-        )}
-        {rest.length > 0 && (
-          <div className={`mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 ${rest.length >= 3 ? "lg:grid-cols-3" : ""}`}>
-            {rest.map((a) => <ArticleCard key={a.id} item={a} to={`/historias/${a.slug}`} />)}
+        {articles.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {articles.map((a) => <ArticleCard key={a.id} item={a} to={`/historias/${a.slug}`} />)}
           </div>
         )}
       </section>
