@@ -96,7 +96,7 @@ export default function Home() {
                 <Link key={c.id} to={`/elecciones/candidato/${c.id}`} data-testid={`home-candidate-${c.id}`}
                   aria-label={`Ver perfil de ${(c.name || "").replace("[DEMO] ", "")}`}
                   className="group flex flex-col sm:flex-row items-center gap-5 sm:gap-7 rounded-2xl border border-border/80 bg-card p-5 sm:p-6 text-foreground shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-terracotta/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
-                  <div className="relative h-28 w-28 sm:h-32 sm:w-32 shrink-0 overflow-hidden rounded-2xl shadow-md ring-4 ring-secondary transition-all duration-300 group-hover:ring-terracotta/40">
+                  <div className="relative h-40 w-40 sm:h-48 sm:w-48 shrink-0 overflow-hidden rounded-2xl shadow-md ring-4 ring-secondary transition-all duration-300 group-hover:ring-terracotta/40">
                     {c.photo
                       ? <img src={mediaUrl(c.photo)} alt={c.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       : <span className="grid h-full w-full place-items-center bg-secondary text-4xl font-serif font-bold text-muted-foreground">{(c.name || "?").replace("[DEMO] ", "").charAt(0)}</span>}
